@@ -197,7 +197,7 @@ sports
           ]`);
           break;
         default:
-          this.echo('[[;white;black]Unfortunately, this command is not implemented]');
+          this.echo('\n[[;white;black]Unfortunately, this command is not implemented]');
         case 'help':
           this.echo(`[[;white;black]
 Usage:
@@ -212,7 +212,7 @@ Available commands:
   languages
   social-media
   hobbies
-  donut
+  rick
           ]`);
 
           break;
@@ -221,7 +221,19 @@ Available commands:
   }, {
     tabcompletion: true,
     completion: function(cmd, callback) {
-      callback(['help', 'personal-info', 'experience', 'certificates', 'skills', 'languages', 'social-media', 'hobbies', 'rick']);
+      callback(
+        [
+          'help',
+          'personal-info',
+          'experience',
+          'certificates',
+          'skills',
+          'languages',
+          'social-media',
+          'hobbies',
+          'rick'
+        ]
+      );
     },
     greetings: `[[;white;black]
 ╔══════════════════════════════════════════════════════════════╗
