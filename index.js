@@ -177,11 +177,14 @@ Type 'dominik help' for more details on each command.
 ║╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗║
 ║ ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝║
 ║                                                              ║
-║ Usage - 'dominik <command>'.                                 ║
+║ Hello, fellow explorer of the digital realm! I'm Dominik,    ║
+║ and this is my virtual abode — a command-line journey        ║
+║ through my professional landscape.                           ║
+║                                                              ║
 ║ Type 'dominik help' for usage info.                          ║
 ║ Type 'clear' to clear the console.                           ║
 ║ Use Tab to complete commands.                                ║
 ╚══════════════════════════════════════════════════════════════╝
  ]`,
-    prompt: '[[;#99ff99;black]anonymous@dominik\'s-personal-website][[;white;black]:][[;blue;black]~][[;white;black]$] '
+    prompt: '[[;#99ff99;black]anonymous@dominikkovacs][[;white;black]:][[;blue;black]~][[;white;black]$] '
 });
