@@ -177,7 +177,7 @@ Type 'dominik help' for more details on each command.
 ║╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗║
 ║ ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝║
 ║                                                              ║
-║ Usage 'dominik <command>'.                                   ║
+║ Usage - 'dominik <command>'.                                 ║
 ║ Type 'dominik help' for usage info.                          ║
 ║ Type 'clear' to clear the console.                           ║
 ║ Use Tab to complete commands.                                ║
