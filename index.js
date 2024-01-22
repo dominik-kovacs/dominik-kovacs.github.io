@@ -115,7 +115,7 @@ Contact Information:
   https://www.linkedin.com/in/kovacsdominik/
 
 [[;#66ccff;black]GitHub:]
-  https://github.com/poklakni
+  https://github.com/dominik-kovacs
 
 Feel free to reach out!
 
