@@ -189,5 +189,5 @@ Type 'dominik help' for more details on each command.
 ║\u0020Use\u0020Tab\u0020to\u0020complete\u0020commands.\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020║
 ╚══════════════════════════════════════════════════════════════╝
  ]`,
-    prompt: '[[;#99ff99;black]anonymous@dominikkovacs][[;white;black]:][[;blue;black]~][[;white;black]$] '
+    prompt: '[[;#99ff99;black]guest@dominikkovacs][[;white;black]:][[;blue;black]~][[;white;black]$] '
 });
