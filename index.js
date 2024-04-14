@@ -1,31 +1,6 @@
 $('body').terminal({
     dominik: function (cmd) {
         switch (cmd) {
-            case 'personal-info':
-                this.echo(`[[;white;black]
-Personal Information:
-
-[[;#66ccff;black]Name:]
-  Dominik Kovacs
-
-[[;#66ccff;black]Age:]
-  ${Math.floor((Date.now() - new Date('1995-08-28').getTime()) / 31536000000)}
-
-[[;#66ccff;black]Email:]
-  dominik.kovacs28@gmail.com
-
-[[;#66ccff;black]Location:]
-  Bratislava, Slovakia
-
-[[;#66ccff;black]Current Contract:]
-  UNIQA Group Service Center Slovakia, spol. s r.o.
-
-[[;#66ccff;black]Current Position:]
-  Senior Java Software Engineer
-
-Type 'dominik help' for more details on each command.
- ]`);
-                break;
             case 'experience':
                 this.echo(`[[;white;black]
 Work Experience:
@@ -79,14 +54,18 @@ Type 'dominik help' for more details on each command.
                 this.echo(`[[;white;black]
 Skills:
 
-[[;#66ccff;black]Advanced:]
-  Java, Spring Boot, Git, Spring Cloud, Maven, Docker, OpenAPI, Amazon Web Services (AWS), WSO2 API Management
-
-[[;#66ccff;black]Intermediate:]
-  Quarkus, Linux, Kubernetes, PostgreSQL, Liquibase, SQL, OAuth2, OpenID Connect
-
-[[;#66ccff;black]Basics:]
-  MongoDB, Jenkins, Bash Scripting, JavaScript, Keycloak
+[[;#66ccff;black]🚀 Advanced/Expert:]                   [[;#66ccff;black]👨‍💻 Intermediate:]                   [[;#66ccff;black]🌱 Basics:]
+Java                                  Quarkus                            MongoDB
+Spring Boot                           Linux                              Jenkins
+Spring Framework                      Kubernetes                         Bash Scripting
+Spring Cloud                          PostgreSQL                         JavaScript
+Git                                   Liquibase                          Keycloak
+Microservices                         SQL
+Maven                                 MySQL
+Docker                                OAuth2
+OpenAPI                               OpenID Connect
+Amazon Web Services (AWS)             Firebase Cloud Messaging (FCM)
+WSO2 API Management & ESB
 
 Type 'dominik help' for more details on each command.
  ]`);
@@ -131,7 +110,6 @@ Available Commands:
 
 [[;#66ccff;black] General Commands:]
   help           Display available commands and usage.
-  personal-info  Show personal information.
   experience     Display work experience details.
   certificates   View certifications and qualifications.
   skills         List technical skills.
@@ -143,9 +121,9 @@ Available Commands:
   Use Tab for command auto-completion.
 
 [[;#66ccff;black] Usage Examples:]
-  dominik personal-info
   dominik skills
   dominik experience
+  dominik certificates
 
 Type 'dominik help' for more details on each command.
  ]`);
@@ -161,7 +139,6 @@ Type 'dominik help' for more details on each command.
         callback(
             [
                 'help',
-                'personal-info',
                 'experience',
                 'certificates',
                 'skills',
@@ -189,5 +166,5 @@ Type 'dominik help' for more details on each command.
 ║\u0020Use\u0020Tab\u0020to\u0020complete\u0020commands.\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020║
 ╚══════════════════════════════════════════════════════════════╝
  ]`,
-    prompt: '[[;#99ff99;black]guest@dominikkovacs][[;white;black]:][[;blue;black]~][[;white;black]$] '
+    prompt: '[[;#99ff99;black]guest@dominikkovacs.me][[;white;black]:][[;blue;black]~][[;white;black]$] '
 });
