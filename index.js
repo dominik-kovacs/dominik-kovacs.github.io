@@ -35,11 +35,11 @@ Type 'dominik help' for more details on each command.
                 this.echo(`[[;white;black]
 Certificates:
 
+[[;#66ccff;black]AWS Certified Developer - Associate:]
+  Validity: 04/2024 - 04/2027
+
 [[;#66ccff;black]Spring Certified Professional 2024:]
   Validity: 04/2024 - Present
-
-[[;#66ccff;black]AWS Certified Cloud Practitioner:]
-  Validity: 12/2020 - 12/2023
 
 [[;#66ccff;black]WSO2 Certified Enterprise Integrator 6 Developer - ESB Profile:]
   Validity: 05/2020 - Present
