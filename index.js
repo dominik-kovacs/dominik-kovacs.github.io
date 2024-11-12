@@ -60,7 +60,7 @@ Spring Boot                           Linux                              Jenkins
 Spring Framework                      Kubernetes                         Bash Scripting
 Spring Cloud                          PostgreSQL                         JavaScript
 Git                                   Liquibase                          Keycloak
-Microservices                         SQL
+Microservices                         SQL                                GraphQL
 Maven                                 MySQL
 Docker                                OAuth2
 OpenAPI                               OpenID Connect
