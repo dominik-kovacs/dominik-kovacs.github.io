@@ -198,6 +198,7 @@
             font-size: 12px;
             color: var(--muted);
             justify-content: space-between;
+            position: relative;
         }
 
         .footer-left { display: flex; gap: 24px; }
@@ -213,6 +214,7 @@
             cursor: pointer;
         }
         .theme-btn:hover { color: #fff; border-color: var(--muted); }
+        .built-with { color: var(--muted); font-style: italic; position: absolute; left: 50%; transform: translateX(-50%); }
 
         .footer kbd {
             color: var(--dim);
@@ -390,6 +392,7 @@
                 <span><kbd>←</kbd> <kbd>→</kbd> Navigate</span>
                 <span><kbd>Tab</kbd> Next</span>
             </div>
+            <span class="built-with">crafted with Claude Code</span>
             <button class="theme-btn" id="theme-toggle">Theme</button>
         </div>
     </div>
