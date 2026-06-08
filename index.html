@@ -1,21 +1,339 @@
-<!DOCTYPE HTML>
-<html lang='en'>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Dominik Kovacs</title>
-    <link href='https://unpkg.com/jquery.terminal/css/jquery.terminal.min.css' rel='stylesheet'/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Dominik Kovács</title>
+    <meta name="description" content="Senior Java Software Engineer — Spring Boot, AWS, Microservices"/>
+    <meta property="og:title" content="Dominik Kovács — Portfolio"/>
+    <meta property="og:description" content="Senior Java Engineer with 7+ years building distributed systems and microservices."/>
+    <meta property="og:type" content="website"/>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌘</text></svg>"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400&display=swap" crossorigin="anonymous"/>
     <style>
-        .terminal {
-            --size: 1.2;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #0a0a0f;
+            color: #e0e0e0;
+            font: 14px/1.6 'IBM Plex Mono', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .frame {
+            border: 1px solid #3a3a4a;
+            border-radius: 4px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .frame::before {
+            content: '┤ Dominik Kovács ├';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0a0a0f;
+            color: #3a3a4a;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+        .nav {
+            display: flex;
+            border-bottom: 1px solid #3a3a4a;
+        }
+
+        .nav-item {
+            padding: 8px 20px;
+            color: #666;
+            cursor: pointer;
+            border-right: 1px solid #3a3a4a;
+            font-size: 13px;
+        }
+
+        .nav-item:last-child { border-right: none; }
+        .nav-item.active { color: #fff; background: #1a1a2a; }
+        .nav-item:not(.active):hover { color: #aaa; }
+
+        .content {
+            flex: 1;
+            padding: 24px 32px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section { display: none; max-width: 750px; width: 100%; opacity: 0; transition: opacity 0.2s; }
+        .section.active { display: block; opacity: 1; }
+
+        .timeline { position: relative; padding-left: 24px; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: #3a3a4a;
+        }
+        .job { margin-bottom: 28px; position: relative; }
+        .job:last-child { margin-bottom: 0; }
+        .job::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 8px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            border: 2px solid #ffcc66;
+            background: #0a0a0f;
+        }
+        .job-date { color: #ffcc66; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .job-title { color: #fff; font-size: 14px; }
+        .job-company { color: #666; font-size: 12px; margin-bottom: 6px; }
+        .job-desc { color: #aaa; font-size: 13px; }
+
+        .skill-group { margin-bottom: 20px; }
+        .skill-group:last-child { margin-bottom: 0; }
+        .skill-label { color: #666; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .skill-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .skill-row:last-child { margin-bottom: 0; }
+        .skill-name { color: #ddd; font-size: 12px; min-width: 160px; }
+        .skill-bar { flex: 1; height: 4px; background: #1a1a2a; border-radius: 2px; overflow: hidden; }
+        .skill-bar-fill { height: 100%; border-radius: 2px; }
+        .skill-bar-fill.beast { background: #ff6666; }
+        .skill-bar-fill.expert { background: #ffcc66; }
+        .skill-bar-fill.intermediate { background: #666; }
+        .skill-bar-fill.basics { background: #3a3a4a; }
+
+        .cert-item {
+            border: 1px solid #3a3a4a;
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .cert-item:last-child { margin-bottom: 0; }
+        .cert-icon { color: #ffcc66; font-size: 20px; min-width: 24px; text-align: center; }
+        .cert-info { flex: 1; }
+        .cert-name { color: #fff; font-size: 13px; }
+        .cert-date { color: #555; font-size: 12px; }
+        .cert-badge {
+            color: #0a0a0f;
+            background: #ffcc66;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+        .cert-badge.expired { background: #3a3a4a; color: #888; }
+        .cert-badge.upcoming { background: transparent; border: 1px solid #ffcc66; color: #ffcc66; }
+
+        .general-center { text-align: center; }
+        .general-header { color: #fff; font-size: 36px; margin-bottom: 4px; }
+        .general-subtitle { color: #555; font-size: 14px; margin-bottom: 16px; }
+        .general-motto { color: #ffcc66; font-style: italic; font-size: 13px; margin-bottom: 20px; }
+        .general-divider { width: 200px; height: 1px; background: #3a3a4a; margin: 0 auto 20px; }
+        .general-bio { color: #aaa; font-size: 13px; margin-bottom: 24px; }
+        .general-link { color: #555; font-size: 13px; }
+        .general-link a { color: #fff; text-decoration: none; }
+        .general-link a:hover { color: #aaa; }
+        .general-link i { margin-right: 8px; }
+
+        .general-stats { display: flex; justify-content: center; gap: 32px; }
+        .stat-item { border: 1px solid #3a3a4a; border-radius: 4px; padding: 14px 24px; text-align: center; }
+        .stat-value { color: #ffcc66; font-size: 22px; font-weight: bold; }
+        .stat-label { color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .footer {
+            border-top: 1px solid #3a3a4a;
+            padding: 6px 16px;
+            display: flex;
+            gap: 24px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .footer kbd {
+            color: #aaa;
+            background: #1a1a2a;
+            border: 1px solid #3a3a4a;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-family: inherit;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 8px; }
+            .content { padding: 16px; }
+            .nav-item { padding: 8px 12px; font-size: 11px; }
+            .general-header { font-size: 24px; }
+            .general-stats { flex-wrap: wrap; gap: 12px; }
+            .stat-item { padding: 10px 16px; }
+            .skill-name { min-width: 120px; }
+            .cert-item { flex-wrap: wrap; gap: 8px; }
+            .footer { display: none; }
         }
     </style>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
-    <script src='https://unpkg.com/jquery.terminal/js/jquery.terminal.min.js'></script>
-    <meta charset='utf-8'/>
 </head>
-
 <body>
-<script src="index.js"></script>
-</body>
+    <div class="frame">
+        <div class="nav" id="nav">
+            <div class="nav-item active" data-section="general">General</div>
+            <div class="nav-item" data-section="experience">Experience</div>
+            <div class="nav-item" data-section="skills">Skills</div>
+            <div class="nav-item" data-section="certificates">Certificates</div>
+        </div>
 
+        <div class="content">
+            <div class="section active" id="general">
+                <div class="general-center">
+                    <div class="general-header">Dominik Kovács</div>
+                    <div class="general-subtitle">Senior Java Software Engineer</div>
+                    <div class="general-motto">"If something can be simpler, it should be."</div>
+                    <div class="general-divider"></div>
+                    <div class="general-bio">Backend engineer with <span id="years-bio"></span>+ years of experience building distributed systems and microservices in Java. Obsessed with clean, maintainable code and keeping systems lean, secure, and up to date.</div>
+                    <div class="general-divider"></div>
+                    <div class="general-link">
+                        <i class="fab fa-linkedin"></i>
+                        <a href="https://www.linkedin.com/in/kovacsdominik/" target="_blank">linkedin.com/in/kovacsdominik</a>
+                    </div>
+                    <div class="general-divider"></div>
+                    <div class="general-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="years-exp"></div>
+                            <div class="stat-label">Years Experience</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Certifications</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">∞</div>
+                            <div class="stat-label">Lines of Code</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">☕</div>
+                            <div class="stat-label">Powered By</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="experience">
+                <div class="timeline">
+                    <div class="job">
+                        <div class="job-date">02/2023 - Present</div>
+                        <div class="job-title">Senior Java Software Engineer</div>
+                        <div class="job-company">UNIQA Group Service Center Slovakia · Bratislava</div>
+                        <div class="job-desc">Architecting and delivering a high-throughput chat platform and centralized notification hub on Spring Boot, Spring Cloud, and AWS. Serving as the default code reviewer, ensuring quality and consistency across all team deliverables.</div>
+                    </div>
+                    <div class="job">
+                        <div class="job-date">03/2022 - 01/2023</div>
+                        <div class="job-title">Senior Java Software Engineer</div>
+                        <div class="job-company">EMM spol, s.r.o. · Bratislava</div>
+                        <div class="job-desc">Owned the full lifecycle of enterprise Spring Boot applications — from design through production support. Managed AWS infrastructure including EKS clusters and CI/CD pipelines via CodeSuite.</div>
+                    </div>
+                    <div class="job">
+                        <div class="job-date">11/2018 - 12/2021</div>
+                        <div class="job-title">System Integration Specialist</div>
+                        <div class="job-company">Accenture Technology Solutions - Slovakia s.r.o. · Bratislava</div>
+                        <div class="job-desc">Engineered cloud-native microservices on Quarkus, Kubernetes, and Helm. Delivered the migration of a mission-critical card system for one of the leading banks in the Czech Republic onto WSO2 Enterprise Integrator.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section" id="skills">
+                <div class="skill-group">
+                    <div class="skill-label">Absolute Beast</div>
+                    <div class="skill-row"><span class="skill-name">Claude Code</span><div class="skill-bar"><div class="skill-bar-fill beast" style="width:100%"></div></div></div>
+                </div>
+                <div class="skill-group">
+                    <div class="skill-label">Advanced / Expert</div>
+                    <div class="skill-row"><span class="skill-name">Java</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Spring Boot</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Spring Cloud</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Microservices</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">AWS</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Docker</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Maven</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:90%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Git</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">OpenAPI</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">WSO2</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:82%"></div></div></div>
+                </div>
+                <div class="skill-group">
+                    <div class="skill-label">Intermediate</div>
+                    <div class="skill-row"><span class="skill-name">Quarkus</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Kubernetes</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Linux</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">OAuth2 / OIDC</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:58%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">SQL</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
+                </div>
+                <div class="skill-group">
+                    <div class="skill-label">Basics</div>
+                    <div class="skill-row"><span class="skill-name">MongoDB</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Bash Scripting</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">JavaScript</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
+                    <div class="skill-row"><span class="skill-name">Keycloak</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
+                </div>
+            </div>
+
+            <div class="section" id="certificates">
+                <div class="cert-item">
+                    <div class="cert-icon"><i class="fab fa-aws"></i></div>
+                    <div class="cert-info">
+                        <div class="cert-name">AWS Certified Developer - Associate</div>
+                        <div class="cert-date">04/2024 - 04/2027</div>
+                    </div>
+                    <div class="cert-badge">Active</div>
+                </div>
+                <div class="cert-item">
+                    <div class="cert-icon"><i class="fas fa-leaf"></i></div>
+                    <div class="cert-info">
+                        <div class="cert-name">Spring Certified Professional 2024</div>
+                        <div class="cert-date">04/2024 - Present</div>
+                    </div>
+                    <div class="cert-badge">Active</div>
+                </div>
+                <div class="cert-item">
+                    <div class="cert-icon"><i class="fas fa-code"></i></div>
+                    <div class="cert-info">
+                        <div class="cert-name">WSO2 Certified Enterprise Integrator 6 Developer</div>
+                        <div class="cert-date">05/2020 - Present</div>
+                    </div>
+                    <div class="cert-badge">Active</div>
+                </div>
+                <div class="cert-item">
+                    <div class="cert-icon"><i class="fab fa-aws"></i></div>
+                    <div class="cert-info">
+                        <div class="cert-name">AWS Certified DevOps Engineer - Professional</div>
+                        <div class="cert-date">Planned: 2027</div>
+                    </div>
+                    <div class="cert-badge upcoming">Upcoming</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span><kbd>←</kbd> <kbd>→</kbd> Navigate</span>
+            <span><kbd>Tab</kbd> Next</span>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
 </html>

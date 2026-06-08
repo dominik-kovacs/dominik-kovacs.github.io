@@ -34,3 +34,6 @@ build/
 
 ### VSCode ###
 .vscode/
+
+### Claude ###
+CLAUDE.md
