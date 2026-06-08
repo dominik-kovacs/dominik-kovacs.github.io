@@ -237,14 +237,33 @@
         }
 
         @media (max-width: 600px) {
-            body { padding: 8px; }
-            .content { padding: 16px; }
-            .nav-item { padding: 8px 12px; font-size: 11px; }
-            .general-header { font-size: 24px; }
-            .general-stats { flex-wrap: wrap; gap: 12px; }
-            .stat-item { padding: 10px 16px; }
-            .skill-name { min-width: 120px; }
-            .cert-item { flex-wrap: wrap; gap: 8px; }
+            body { padding: 4px; }
+            .frame::before { display: none; }
+            .content { padding: 12px; align-items: flex-start; }
+            .nav { overflow-x: auto; }
+            .nav-item { padding: 6px 12px; font-size: 10px; white-space: nowrap; }
+            .general-header { font-size: 20px; min-height: auto; }
+            .general-subtitle { font-size: 12px; margin-bottom: 10px; }
+            .general-motto { font-size: 11px; min-height: auto; margin-bottom: 12px; }
+            .general-divider { width: 120px; margin: 0 auto 12px; }
+            .general-bio { font-size: 11px; margin-bottom: 14px; }
+            .general-link { font-size: 11px; }
+            .general-stats { flex-wrap: wrap; gap: 8px; }
+            .stat-item { padding: 8px 12px; }
+            .stat-value { font-size: 16px; }
+            .stat-label { font-size: 9px; }
+            .job { margin-bottom: 16px; }
+            .job-date { font-size: 10px; }
+            .job-title { font-size: 12px; }
+            .job-company { font-size: 11px; }
+            .job-desc { font-size: 11px; }
+            .skill-name { min-width: 110px; font-size: 11px; }
+            .skill-label { font-size: 10px; }
+            .cert-item { padding: 10px 12px; gap: 10px; }
+            .cert-name { font-size: 11px; }
+            .cert-date { font-size: 10px; }
+            .cert-badge { font-size: 9px; }
+            .cert-icon { font-size: 16px; }
             .footer { display: none; }
         }
     </style>
