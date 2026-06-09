@@ -230,16 +230,28 @@ function initApp() {
             { text: "dark mode: " + (darkMode ? "yes" : "no"), style: 'dim' },
             { text: "reduced motion: " + (reducedMotion ? "yes" : "no"), style: 'dim' },
             { text: "cameras: " + media.cams + " | mics: " + media.mics + " | speakers: " + media.speakers, style: 'highlight' },
+            { type: 'separator' },
+            { text: "MOTION", style: 'section' },
+            { text: "Your device has sensors that report", style: 'dim' },
+            { text: "how you're holding it right now.", style: 'dim' },
+            { text: "listening...", style: 'accent', id: 'gyro-line' },
         ];
 
         fetch("https://api.ipify.org?format=json").then(r => r.json()).then(ipData => {
             return fetch("https://ipapi.co/" + ipData.ip + "/json/").then(r => r.json());
         }).then(geo => {
-            left.splice(3, 0,
+            const geoLines = [
                 { text: "location: " + geo.city + ", " + geo.country_name, style: 'accent' },
                 { text: "isp: " + geo.org, style: 'dim' },
-                { text: "ip: " + geo.ip, style: 'dim' }
-            );
+                { text: "ip: " + geo.ip, style: 'dim' },
+            ];
+            const ipTimezone = geo.timezone;
+            if (ipTimezone && ipTimezone !== tz) {
+                const ipCountry = geo.country_name || 'somewhere else';
+                const tzCity = tz.split('/').pop().replace(/_/g, ' ');
+                geoLines.push({ text: "⚠ VPN detected — IP says " + ipCountry + " but your clock says " + tzCity, style: 'accent' });
+            }
+            left.splice(3, 0, ...geoLines);
             revealBoth();
         }).catch(() => revealBoth());
 
@@ -285,15 +297,16 @@ function initApp() {
                     container.appendChild(sep);
                     requestAnimationFrame(() => sep.classList.add('visible'));
                 } else {
-                    addLine(line.text, line.style, container);
+                    addLine(line.text, line.style, container, line.id);
                 }
                 i++;
             }, 100);
         }
 
-        function addLine(text, style, container) {
+        function addLine(text, style, container, id) {
             const el = document.createElement('div');
             el.className = 'visitor-line vl-' + style;
+            if (id) el.id = id;
             el.textContent = text;
             container.appendChild(el);
             requestAnimationFrame(() => el.classList.add('visible'));
@@ -302,26 +315,38 @@ function initApp() {
         function showOutro() {
             outro.textContent = "No cookies stored. No accounts. Just your browser, quietly revealing everything to anyone who asks.";
             requestAnimationFrame(() => outro.classList.add('visible'));
-            initCamera();
+            initGyroscope();
         }
 
-        async function initCamera() {
-            try {
-                const perm = await navigator.permissions.query({ name: 'camera' });
-                if (perm.state !== 'granted') return;
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const wrap = document.createElement('div');
-                wrap.className = 'visitor-camera';
-                wrap.innerHTML = '<div class="visitor-camera-label">I can see you</div>';
-                const video = document.createElement('video');
-                video.autoplay = true;
-                video.muted = true;
-                video.playsInline = true;
-                video.srcObject = stream;
-                wrap.prepend(video);
-                document.body.appendChild(wrap);
-                requestAnimationFrame(() => wrap.classList.add('visible'));
-            } catch (e) {}
+        function initGyroscope() {
+            const gyroEl = document.getElementById('gyro-line');
+            if (!gyroEl) return;
+
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (e) => {
+                    if (e.alpha === null && e.beta === null && e.gamma === null) {
+                        gyroEl.textContent = 'no motion sensors (desktop?)';
+                        return;
+                    }
+                    const beta = Math.round(e.beta || 0);
+                    const gamma = Math.round(e.gamma || 0);
+                    let posture = '';
+                    if (beta > 70) posture = 'upright — holding in front of you';
+                    else if (beta > 40) posture = 'tilted — on a desk maybe?';
+                    else if (beta < 15 && beta > -15) posture = 'flat — lying down?';
+                    else if (beta < -30) posture = 'face down — why?';
+                    else posture = 'angled at ' + beta + '°';
+                    if (Math.abs(gamma) > 45) posture = 'landscape — rotated sideways';
+                    gyroEl.textContent = posture + ' (tilt: ' + beta + '° / ' + gamma + '°)';
+                });
+                setTimeout(() => {
+                    if (gyroEl.textContent === 'listening...') {
+                        gyroEl.textContent = 'no motion sensors (desktop?)';
+                    }
+                }, 2000);
+            } else {
+                gyroEl.textContent = 'not supported';
+            }
         }
     }
 
