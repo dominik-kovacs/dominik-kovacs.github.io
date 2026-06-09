@@ -291,6 +291,29 @@
 
         .general-greeting { color: var(--dim); font-size: 12px; margin-bottom: 6px; }
 
+        #visitor { max-width: 900px; overflow-y: auto; max-height: 100%; padding-right: 10px; }
+        .visitor-intro { color: var(--accent); font-size: 16px; margin-bottom: 24px; }
+        .visitor-intro::before { content: '> '; color: var(--muted); }
+        .visitor-columns { display: flex; gap: 40px; }
+        .visitor-facts { line-height: 1.7; flex: 1; }
+        .visitor-line { opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.4s; padding-left: 16px; }
+        .visitor-line.visible { opacity: 1; transform: translateY(0); }
+        .visitor-line.vl-highlight { color: #fff; font-size: 13px; }
+        .visitor-line.vl-highlight::before { content: '  '; }
+        .visitor-line.vl-dim { color: var(--dim); font-size: 12px; }
+        .visitor-line.vl-dim::before { content: '  '; }
+        .visitor-line.vl-accent { color: var(--accent); font-size: 13px; }
+        .visitor-line.vl-accent::before { content: '→ '; color: var(--muted); }
+        .visitor-line.vl-section { color: var(--muted); font-size: 11px; letter-spacing: 1px; padding-left: 0; border-left: 2px solid var(--accent); padding-left: 10px; margin-top: 2px; }
+        .visitor-separator { height: 0; margin: 12px 0; opacity: 0; transition: opacity 0.4s; }
+        .visitor-separator.visible { opacity: 1; }
+        .visitor-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .visitor-outro { color: var(--dim); font-size: 11px; opacity: 0; transition: opacity 0.6s; }
+        .visitor-outro::before { content: '# '; color: var(--muted); }
+        .visitor-outro.visible { opacity: 1; }
+        .visitor-battery { color: var(--accent); font-size: 11px; opacity: 0; transition: opacity 0.4s; white-space: nowrap; }
+        .visitor-battery.visible { opacity: 1; }
+
         @media (max-width: 600px) {
             body { padding: 4px; }
             .frame::before { display: none; }
@@ -325,6 +348,9 @@
             .tool-item { padding: 8px 10px; font-size: 11px; }
             .tool-item i { font-size: 14px; }
             .toolbox-label { font-size: 10px; margin-bottom: 10px; }
+            .visitor-intro { font-size: 14px; }
+            .visitor-columns { flex-direction: column; gap: 0; }
+            .visitor-line.vl-highlight { font-size: 12px; }
             .footer { display: none; }
         }
     </style>
@@ -341,8 +367,9 @@
         <div class="nav" id="nav">
             <div class="nav-item active" data-section="general">General</div>
             <div class="nav-item" data-section="experience">Experience</div>
-            <div class="nav-item" data-section="skills">Skills</div>
+            <div class="nav-item" data-section="skills">Stack</div>
             <div class="nav-item" data-section="certificates">Certificates</div>
+            <div class="nav-item" data-section="visitor">You</div>
         </div>
 
         <div class="content">
@@ -491,6 +518,17 @@
                 </div>
             </div>
 
+            <div class="section" id="visitor">
+                <div class="visitor-intro" id="visitor-intro"></div>
+                <div class="visitor-columns">
+                    <div class="visitor-facts" id="visitor-facts-left"></div>
+                    <div class="visitor-facts" id="visitor-facts-right"></div>
+                </div>
+                <div class="visitor-bottom">
+                    <div class="visitor-outro" id="visitor-outro"></div>
+                    <div class="visitor-battery" id="visitor-battery"></div>
+                </div>
+            </div>
         </div>
 
         <div class="footer">
@@ -498,7 +536,7 @@
                 <span><kbd>←</kbd> <kbd>→</kbd> Navigate</span>
                 <span><kbd>Tab</kbd> Next</span>
             </div>
-            <span class="built-with">crafted with Claude Code</span>
+            <span class="built-with" id="activity-stats"></span>
             <div style="display: flex; align-items: center; gap: 12px;">
                 <span class="footer-clock" id="clock"></span>
                 <button class="theme-btn" id="theme-toggle">Theme</button>
