@@ -301,15 +301,47 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: opacity 0.4s;
         }
-        .terminal-takeover.fade-out { opacity: 0; }
         .takeover-terminal { max-width: 500px; width: 100%; padding: 24px; }
         .takeover-line { color: #33ff33; font-size: 14px; font-family: 'IBM Plex Mono', monospace; line-height: 2; white-space: pre; }
-        .takeover-line.dim { color: #336633; }
         .takeover-line.warn { color: #ff4444; }
         .terminal-takeover.flash-white { background: #fff; transition: background 0.1s; }
         .self-destruct { background: #000 !important; }
+        .glitch-out {
+            animation: glitch 0.15s infinite;
+            filter: hue-rotate(90deg) saturate(3);
+        }
+        .dissolve {
+            animation: dissolveOut 1.2s ease-out forwards;
+        }
+        .destruct-particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent, #ffcc66);
+            pointer-events: none;
+            z-index: 9999;
+            animation: destructFloat 1s ease-out forwards;
+        }
+        .destruct-particle:nth-child(odd) { background: #ff4444; width: 3px; height: 6px; }
+        .destruct-particle:nth-child(3n) { background: #33ff33; width: 6px; height: 2px; }
+        @keyframes glitch {
+            0% { transform: translate(0); clip-path: inset(0 0 0 0); }
+            20% { transform: translate(-3px, 2px); clip-path: inset(20% 0 60% 0); }
+            40% { transform: translate(3px, -2px); clip-path: inset(50% 0 20% 0); }
+            60% { transform: translate(-2px, -1px); clip-path: inset(10% 0 70% 0); }
+            80% { transform: translate(2px, 1px); clip-path: inset(70% 0 5% 0); }
+            100% { transform: translate(0); clip-path: inset(0 0 0 0); }
+        }
+        @keyframes dissolveOut {
+            0% { opacity: 1; transform: scale(1); filter: none; }
+            50% { opacity: 0.5; transform: scale(0.98); filter: blur(2px); }
+            100% { opacity: 0; transform: scale(0.9); filter: blur(8px); }
+        }
+        @keyframes destructFloat {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+        }
 
         .boot-screen {
             position: fixed;
@@ -406,30 +438,51 @@
         .defuse-result { font-size: 13px; color: var(--dim); }
         .defuse-result.success { color: var(--accent); }
         .defuse-result.failure { color: #ff4444; }
-        .defuse-explode { animation: shake 0.6s ease-out; }
+        .defuse-explode { animation: shake 0.8s ease-out; }
         .defuse-flash {
             position: fixed;
             inset: 0;
-            background: #ff4444;
             z-index: 9998;
             pointer-events: none;
-            animation: flash 0.8s ease-out forwards;
+            background: radial-gradient(circle at center, #ffaa00 0%, #ff4444 40%, transparent 70%);
+            animation: flash 1s ease-out forwards;
+        }
+        .explosion-particles {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            z-index: 9997;
+            pointer-events: none;
+        }
+        .explosion-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #ff4444;
+            border-radius: 1px;
+            animation: particleFly 0.8s ease-out forwards;
+        }
+        .explosion-particle:nth-child(odd) { background: #ffaa00; width: 4px; height: 4px; }
+        .explosion-particle:nth-child(3n) { background: #ff6600; width: 8px; height: 3px; }
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; }
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         @keyframes blink { 50% { border-color: transparent; } }
         @keyframes shake {
             0%, 100% { transform: translate(0); }
-            10% { transform: translate(-8px, 4px); }
-            20% { transform: translate(6px, -6px); }
-            30% { transform: translate(-4px, 6px); }
-            40% { transform: translate(8px, -2px); }
-            50% { transform: translate(-6px, -4px); }
-            60% { transform: translate(4px, 6px); }
-            70% { transform: translate(-2px, -8px); }
-            80% { transform: translate(6px, 2px); }
-            90% { transform: translate(-4px, -2px); }
+            10% { transform: translate(-10px, 6px); }
+            20% { transform: translate(8px, -8px); }
+            30% { transform: translate(-6px, 8px); }
+            40% { transform: translate(10px, -4px); }
+            50% { transform: translate(-8px, -6px); }
+            60% { transform: translate(6px, 8px); }
+            70% { transform: translate(-4px, -10px); }
+            80% { transform: translate(8px, 4px); }
+            90% { transform: translate(-6px, -4px); }
         }
-        @keyframes flash { 0% { opacity: 0.7; } 100% { opacity: 0; } }
+        @keyframes flash { 0% { opacity: 0.9; } 30% { opacity: 0.7; } 100% { opacity: 0; } }
 
         .copy-toast {
             position: fixed;
