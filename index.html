@@ -14,6 +14,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+
         :root {
             --bg: #0a0a0f;
             --fg: #e0e0e0;
@@ -89,23 +90,25 @@
         }
 
         .nav-item:last-child { border-right: none; }
-        .nav-item.active { color: #fff; background: var(--panel); }
+        .nav-item.active { color: var(--accent); background: var(--panel); }
+        .nav-item.active::before { content: '▸ '; }
         .nav-item:not(.active):hover { color: var(--dim); }
 
         .content {
             flex: 1;
             padding: 24px 32px;
-            overflow-y: auto;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             border-bottom-left-radius: 4px;
             border-bottom-right-radius: 4px;
+            position: relative;
         }
-
-        .section { display: none; max-width: 750px; width: 100%; opacity: 0; transition: opacity 0.2s; }
-        .job { border-bottom-color: var(--panel); }
-        .section.active { display: block; opacity: 1; }
+        .section { display: none; max-width: 750px; width: 100%; opacity: 0; transform: translateX(30px); transition: opacity 0.3s, transform 0.3s; }
+        .section.active { display: block; opacity: 1; transform: translateX(0); }
+        .section.slide-left { transform: translateX(-30px); }
+        .section.slide-right { transform: translateX(30px); }
 
         .timeline { position: relative; padding-left: 24px; }
         .timeline::before {
@@ -117,7 +120,8 @@
             width: 1px;
             background: var(--border);
         }
-        .job { margin-bottom: 28px; position: relative; }
+        .job { margin-bottom: 28px; position: relative; opacity: 0; transform: translateY(15px); transition: opacity 0.4s, transform 0.4s; }
+        .job.visible { opacity: 1; transform: translateY(0); }
         .job:last-child { margin-bottom: 0; }
         .job::before {
             content: '';
@@ -142,7 +146,7 @@
         .skill-row:last-child { margin-bottom: 0; }
         .skill-name { color: #ddd; font-size: 12px; min-width: 160px; }
         .skill-bar { flex: 1; height: 4px; background: var(--panel); border-radius: 2px; overflow: hidden; }
-        .skill-bar-fill { height: 100%; border-radius: 2px; }
+        .skill-bar-fill { height: 100%; border-radius: 2px; width: 0; transition: width 0.6s ease-out; }
         .skill-bar-fill.beast { background: #ff6666; }
         .skill-bar-fill.expert { background: var(--accent); }
         .skill-bar-fill.intermediate { background: var(--muted); }
@@ -182,8 +186,19 @@
         .general-divider { width: 200px; height: 1px; background: var(--border); margin: 0 auto 20px; }
         .general-bio { color: var(--dim); font-size: 13px; margin-bottom: 24px; }
         .general-link { color: var(--muted); font-size: 13px; }
-        .general-link a { color: #fff; text-decoration: none; }
-        .general-link a:hover { color: var(--dim); }
+        .general-link a { color: #fff; text-decoration: none; position: relative; }
+        .general-link a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        .general-link a:hover::after { width: 100%; }
+        .general-link a:hover { color: #fff; }
         .general-link i { margin-right: 8px; }
 
         .general-stats { display: flex; justify-content: center; gap: 32px; }
@@ -236,6 +251,46 @@
             cursor: pointer;
         }
 
+        .boot-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-size: 13px;
+            color: var(--accent);
+            transition: opacity 0.4s;
+        }
+        .boot-screen.fade-out { opacity: 0; }
+        .boot-line { margin-bottom: 4px; opacity: 0; }
+        .boot-line.visible { opacity: 1; }
+
+        .footer-clock { color: var(--dim); font-size: 11px; font-family: inherit; }
+
+        .skills-layout { display: flex; gap: 40px; }
+        .skills-bars { flex: 1; }
+        .skills-toolbox { width: 200px; flex-shrink: 0; }
+        #skills { max-width: 900px; }
+
+        .toolbox-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+        .toolbox-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .tool-item {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--fg);
+        }
+        .tool-item i { color: var(--accent); font-size: 16px; min-width: 20px; text-align: center; }
+
+        .general-greeting { color: var(--dim); font-size: 12px; margin-bottom: 6px; }
+
         @media (max-width: 600px) {
             body { padding: 4px; }
             .frame::before { display: none; }
@@ -264,12 +319,25 @@
             .cert-date { font-size: 10px; }
             .cert-badge { font-size: 9px; }
             .cert-icon { font-size: 16px; }
+            .skills-layout { flex-direction: column; gap: 20px; }
+            .skills-toolbox { width: 100%; }
+            .toolbox-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .tool-item { padding: 8px 10px; font-size: 11px; }
+            .tool-item i { font-size: 14px; }
+            .toolbox-label { font-size: 10px; margin-bottom: 10px; }
             .footer { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="frame">
+    <div class="boot-screen" id="boot">
+        <div class="boot-line">BIOS v1.0.0 — dominikkovacs.sk</div>
+        <div class="boot-line">Checking system memory... OK</div>
+        <div class="boot-line">Loading portfolio modules... OK</div>
+        <div class="boot-line">Initializing TUI interface...</div>
+        <div class="boot-line">Ready.</div>
+    </div>
+    <div class="frame" style="opacity: 0;">
         <div class="nav" id="nav">
             <div class="nav-item active" data-section="general">General</div>
             <div class="nav-item" data-section="experience">Experience</div>
@@ -280,11 +348,12 @@
         <div class="content">
             <div class="section active" id="general">
                 <div class="general-center">
+                    <div class="general-greeting" id="greeting"></div>
                     <div class="general-header">Dominik Kovács</div>
                     <div class="general-subtitle">Senior Java Software Engineer</div>
                     <div class="general-motto">"If something can be simpler, it should be."</div>
                     <div class="general-divider"></div>
-                    <div class="general-bio">Backend engineer with <span id="years-bio"></span>+ years of experience building distributed systems and microservices in Java. Obsessed with clean, maintainable code and keeping systems lean, secure, and up to date.</div>
+                    <div class="general-bio">Backend engineer with <span id="years-bio"></span>+ years of experience building distributed systems and microservices in Java. Perfectionist obsessed with clean code, relentless refactoring, and keeping dependencies up to date — zero vulnerabilities, zero tech debt left behind.</div>
                     <div class="general-divider"></div>
                     <div class="general-link">
                         <i class="fab fa-linkedin"></i>
@@ -336,37 +405,54 @@
             </div>
 
             <div class="section" id="skills">
-                <div class="skill-group">
-                    <div class="skill-label">Absolute Beast</div>
-                    <div class="skill-row"><span class="skill-name">Claude Code</span><div class="skill-bar"><div class="skill-bar-fill beast" style="width:100%"></div></div></div>
-                </div>
-                <div class="skill-group">
-                    <div class="skill-label">Advanced / Expert</div>
-                    <div class="skill-row"><span class="skill-name">Java</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Spring Boot</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Spring Cloud</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Microservices</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">AWS</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Docker</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Maven</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:90%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Git</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">OpenAPI</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">WSO2</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:82%"></div></div></div>
-                </div>
-                <div class="skill-group">
-                    <div class="skill-label">Intermediate</div>
-                    <div class="skill-row"><span class="skill-name">Quarkus</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Kubernetes</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Linux</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">OAuth2 / OIDC</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:58%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">SQL</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
-                </div>
-                <div class="skill-group">
-                    <div class="skill-label">Basics</div>
-                    <div class="skill-row"><span class="skill-name">MongoDB</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Bash Scripting</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">JavaScript</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
-                    <div class="skill-row"><span class="skill-name">Keycloak</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
+                <div class="skills-layout">
+                    <div class="skills-bars">
+                        <div class="skill-group">
+                            <div class="skill-label">Absolute Beast</div>
+                            <div class="skill-row"><span class="skill-name">Claude Code</span><div class="skill-bar"><div class="skill-bar-fill beast" style="width:100%"></div></div></div>
+                        </div>
+                        <div class="skill-group">
+                            <div class="skill-label">Advanced / Expert</div>
+                            <div class="skill-row"><span class="skill-name">Java</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Spring Boot</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:95%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Spring Cloud</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Microservices</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">AWS</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Docker</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:88%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Maven</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:90%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Git</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:92%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">OpenAPI</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:85%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">WSO2</span><div class="skill-bar"><div class="skill-bar-fill expert" style="width:82%"></div></div></div>
+                        </div>
+                        <div class="skill-group">
+                            <div class="skill-label">Intermediate</div>
+                            <div class="skill-row"><span class="skill-name">Quarkus</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Kubernetes</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Linux</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:60%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">OAuth2 / OIDC</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:58%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">SQL</span><div class="skill-bar"><div class="skill-bar-fill intermediate" style="width:65%"></div></div></div>
+                        </div>
+                        <div class="skill-group">
+                            <div class="skill-label">Basics</div>
+                            <div class="skill-row"><span class="skill-name">MongoDB</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Bash Scripting</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:35%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">JavaScript</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
+                            <div class="skill-row"><span class="skill-name">Keycloak</span><div class="skill-bar"><div class="skill-bar-fill basics" style="width:30%"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="skills-toolbox">
+                        <div class="toolbox-label">Daily Drivers</div>
+                        <div class="toolbox-grid">
+                            <div class="tool-item"><i class="fab fa-java"></i><span>Java</span></div>
+                            <div class="tool-item"><i class="fas fa-leaf"></i><span>Spring Boot</span></div>
+                            <div class="tool-item"><i class="fab fa-aws"></i><span>AWS</span></div>
+                            <div class="tool-item"><i class="fab fa-docker"></i><span>Docker</span></div>
+                            <div class="tool-item"><i class="fab fa-git-alt"></i><span>Git</span></div>
+                            <div class="tool-item"><i class="fas fa-terminal"></i><span>Claude Code</span></div>
+                            <div class="tool-item"><i class="fas fa-code"></i><span>IntelliJ IDEA</span></div>
+                            <div class="tool-item"><i class="fab fa-linux"></i><span>Linux</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -404,6 +490,7 @@
                     <div class="cert-badge upcoming">Upcoming</div>
                 </div>
             </div>
+
         </div>
 
         <div class="footer">
@@ -412,7 +499,10 @@
                 <span><kbd>Tab</kbd> Next</span>
             </div>
             <span class="built-with">crafted with Claude Code</span>
-            <button class="theme-btn" id="theme-toggle">Theme</button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="footer-clock" id="clock"></span>
+                <button class="theme-btn" id="theme-toggle">Theme</button>
+            </div>
         </div>
     </div>
 
