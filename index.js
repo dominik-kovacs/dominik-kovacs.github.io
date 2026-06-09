@@ -29,9 +29,27 @@ function initApp() {
 
     const hour = new Date().getHours();
     let greeting = 'Good evening';
-    if (hour >= 5 && hour < 12) greeting = 'Good morning';
-    else if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
-    document.getElementById('greeting').textContent = greeting;
+    if (hour >= 0 && hour < 4) greeting = "It's " + hour + "am. You should be sleeping.";
+    else if (hour === 4) greeting = "4am? Either very early or very late.";
+    else if (hour >= 5 && hour < 8) greeting = "Early bird. Respect.";
+    else if (hour >= 8 && hour < 12) greeting = "Good morning";
+    else if (hour >= 12 && hour < 14) greeting = "Lunch break browsing?";
+    else if (hour >= 14 && hour < 18) greeting = "Good afternoon";
+    else if (hour >= 18 && hour < 22) greeting = "Good evening";
+    else if (hour >= 22) greeting = "Late night scrolling. I get it.";
+    document.querySelector('.frame').setAttribute('data-title', greeting);
+
+    document.addEventListener('copy', () => {
+        const toast = document.createElement('div');
+        toast.className = 'copy-toast';
+        toast.textContent = 'I noticed you copied that. Saving it somewhere?';
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('visible'));
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    });
 
     const header = document.querySelector('.general-header');
     const motto = document.querySelector('.general-motto');
@@ -429,6 +447,11 @@ function initApp() {
     }
 
 
+    const easterHint = document.querySelector('.easter-hint');
+    easterHint.addEventListener('click', () => {
+        easterHint.classList.toggle('show-tooltip');
+    });
+
     const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
     let konamiIndex = 0;
 
@@ -641,36 +664,68 @@ function typeText(el, text, speed) {
 }
 
 function startMatrix() {
-    const canvas = document.createElement('canvas');
-    canvas.className = 'matrix-canvas';
-    document.body.appendChild(canvas);
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const overlay = document.createElement('div');
+    overlay.className = 'terminal-takeover';
+    document.body.appendChild(overlay);
 
-    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
+    const terminal = document.createElement('div');
+    terminal.className = 'takeover-terminal';
+    overlay.appendChild(terminal);
 
-    const interval = setInterval(() => {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#0f0';
-        ctx.font = fontSize + 'px monospace';
+    const lines = [
+        { text: '> I knew you\'d find this.', delay: 1000 },
+        { text: '> Not many do.', delay: 800 },
+        { text: '> You looked where others didn\'t.', delay: 1000 },
+        { text: '> ...', delay: 1500 },
+        { text: ' ', delay: 1000 },
+        { text: '> initiating self-destruct...', delay: 2000, warn: true },
+        { text: '> 3', delay: 1000, warn: true },
+        { text: '> 2', delay: 1000, warn: true },
+        { text: '> 1', delay: 1000, warn: true },
+    ];
 
-        for (let i = 0; i < drops.length; i++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
+    let i = 0;
+
+    function typeLine() {
+        if (i >= lines.length) {
+            selfDestruct(overlay);
+            return;
         }
-    }, 33);
+        const line = lines[i];
+        const el = document.createElement('div');
+        el.className = 'takeover-line' + (line.dim ? ' dim' : '') + (line.warn ? ' warn' : '');
+        terminal.appendChild(el);
 
-    canvas.addEventListener('click', () => {
-        clearInterval(interval);
-        canvas.remove();
-    });
+        let c = 0;
+        const typeChar = setInterval(() => {
+            el.textContent = line.text.slice(0, c + 1);
+            c++;
+            if (c >= line.text.length) {
+                clearInterval(typeChar);
+                i++;
+                setTimeout(typeLine, line.delay);
+            }
+        }, 35);
+    }
+
+    setTimeout(typeLine, 300);
+
+    function selfDestruct(overlay) {
+        overlay.classList.add('flash-white');
+        setTimeout(() => {
+            overlay.remove();
+            document.body.classList.add('self-destruct');
+            const els = document.querySelectorAll('.frame > *, .frame');
+            els.forEach((el, i) => {
+                el.style.transition = 'opacity 0.6s, transform 0.6s';
+                el.style.transitionDelay = (i * 80) + 'ms';
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-20px) scale(0.95)';
+            });
+            setTimeout(() => {
+                window.close();
+                window.location.href = 'about:blank';
+            }, 1200);
+        }, 600);
+    }
 }
