@@ -759,9 +759,16 @@ function startMatrix() {
         frame.classList.add('glitch-out');
 
         const allText = document.querySelectorAll('.frame *');
+        const originalContent = new Map();
+        allText.forEach(el => {
+            if (el.children.length === 0 && el.textContent.trim()) {
+                originalContent.set(el, el.textContent);
+            }
+        });
+
         let scrambleInterval = setInterval(() => {
             allText.forEach(el => {
-                if (el.children.length === 0 && el.textContent.trim()) {
+                if (originalContent.has(el)) {
                     el.textContent = [...el.textContent].map(c =>
                         c === ' ' ? ' ' : String.fromCharCode(33 + Math.floor(Math.random() * 94))
                     ).join('');
@@ -781,14 +788,27 @@ function startMatrix() {
                 particle.style.top = (Math.random() * 100) + '%';
                 particle.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px');
                 particle.style.setProperty('--dy', -(50 + Math.random() * 200) + 'px');
-                particle.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+                particle.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
                 document.body.appendChild(particle);
             }
 
             setTimeout(() => {
-                window.close();
-                window.location.href = 'about:blank';
-            }, 1500);
-        }, 1200);
+                frame.style.display = 'none';
+                document.querySelectorAll('.destruct-particle').forEach(p => p.remove());
+
+                setTimeout(() => {
+                    originalContent.forEach((text, el) => { el.textContent = text; });
+                    frame.classList.remove('dissolve');
+                    frame.style.display = '';
+                    frame.style.opacity = '0';
+                    document.body.classList.remove('self-destruct');
+                    requestAnimationFrame(() => {
+                        frame.style.transition = 'opacity 1s';
+                        frame.style.opacity = '1';
+                        setTimeout(() => { frame.style.transition = ''; }, 1000);
+                    });
+                }, 3000);
+            }, 3000);
+        }, 2400);
     }
 }
