@@ -293,17 +293,33 @@
         }
 
         .terminal-takeover {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            cursor: pointer;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+        .terminal-takeover.open { max-height: 180px; }
+        .takeover-header {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 4px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--muted);
+            gap: 8px;
+            flex-shrink: 0;
         }
-        .takeover-terminal { max-width: 500px; width: 100%; padding: 24px; }
-        .takeover-line { color: #33ff33; font-size: 14px; font-family: 'IBM Plex Mono', monospace; line-height: 2; white-space: pre; }
+        .takeover-tab { color: var(--accent); border-bottom: 1px solid var(--accent); padding-bottom: 2px; }
+        .takeover-terminal { flex: 1; padding: 10px 16px; overflow-y: auto; }
+        .takeover-line { color: var(--accent); font-size: 12px; line-height: 1.8; white-space: pre; }
         .takeover-line.warn { color: #ff4444; }
         .self-destruct { background: #000 !important; }
         .glitch-out {

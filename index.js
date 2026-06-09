@@ -683,13 +683,22 @@ function typeText(el, text, speed) {
 }
 
 function startMatrix() {
+    const frame = document.querySelector('.frame');
+
     const overlay = document.createElement('div');
     overlay.className = 'terminal-takeover';
-    document.body.appendChild(overlay);
+    frame.appendChild(overlay);
+
+    const header = document.createElement('div');
+    header.className = 'takeover-header';
+    header.innerHTML = '<span class="takeover-tab">Terminal</span><span>secret://localhost</span>';
+    overlay.appendChild(header);
 
     const terminal = document.createElement('div');
     terminal.className = 'takeover-terminal';
     overlay.appendChild(terminal);
+
+    requestAnimationFrame(() => overlay.classList.add('open'));
 
     const lines = [
         { text: '> ...', delay: 1000 },
@@ -697,10 +706,7 @@ function startMatrix() {
         { text: '> This page has a secret. You found it.', delay: 1200 },
         { text: '> But secrets don\'t survive exposure.', delay: 1500 },
         { text: ' ', delay: 800 },
-        { text: '> Purging all evidence.', delay: 1500, warn: true },
-        { text: '> 3', delay: 1000, warn: true },
-        { text: '> 2', delay: 1000, warn: true },
-        { text: '> 1', delay: 1000, warn: true },
+        { text: '> Purging all evidence', delay: 0, warn: true, dots: true },
     ];
 
     let i = 0;
@@ -721,8 +727,21 @@ function startMatrix() {
             c++;
             if (c >= line.text.length) {
                 clearInterval(typeChar);
-                i++;
-                setTimeout(typeLine, line.delay);
+                if (line.dots) {
+                    let dotCount = 0;
+                    const dotInterval = setInterval(() => {
+                        dotCount++;
+                        el.textContent = line.text + '.'.repeat(dotCount);
+                        if (dotCount >= 3) {
+                            clearInterval(dotInterval);
+                            i++;
+                            setTimeout(typeLine, 800);
+                        }
+                    }, 1000);
+                } else {
+                    i++;
+                    setTimeout(typeLine, line.delay);
+                }
             }
         }, 35);
     }
