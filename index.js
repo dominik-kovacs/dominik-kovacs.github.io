@@ -29,7 +29,8 @@ function initApp() {
 
     const hour = new Date().getHours();
     let greeting = 'Good evening';
-    if (hour >= 0 && hour < 4) greeting = "It's " + hour + "am. You should be sleeping.";
+    if (hour === 0) greeting = "It's midnight. You should be sleeping.";
+    else if (hour >= 1 && hour < 4) greeting = "It's " + hour + "am. You should be sleeping.";
     else if (hour === 4) greeting = "4am? Either very early or very late.";
     else if (hour >= 5 && hour < 8) greeting = "Early bird. Respect.";
     else if (hour >= 8 && hour < 12) greeting = "Good morning";
@@ -158,14 +159,13 @@ function initApp() {
 
         const ua = navigator.userAgent;
         let browser = 'an unknown browser';
-        if (ua.includes('Firefox')) browser = 'Firefox ' + (ua.match(/Firefox\/(\d+)/) || [])[1];
-        else if (ua.includes('Edg/')) browser = 'Edge ' + (ua.match(/Edg\/(\d+)/) || [])[1];
-        else if (ua.includes('Chrome')) browser = 'Chrome ' + (ua.match(/Chrome\/(\d+)/) || [])[1];
-        else if (ua.includes('Safari')) browser = 'Safari ' + (ua.match(/Version\/(\d+)/) || [])[1];
+        if (ua.includes('Firefox')) browser = 'Firefox ' + ((ua.match(/Firefox\/(\d+)/) || [])[1] || '');
+        else if (ua.includes('Edg/')) browser = 'Edge ' + ((ua.match(/Edg\/(\d+)/) || [])[1] || '');
+        else if (ua.includes('Chrome')) browser = 'Chrome ' + ((ua.match(/Chrome\/(\d+)/) || [])[1] || '');
+        else if (ua.includes('Safari')) browser = 'Safari ' + ((ua.match(/Version\/(\d+)/) || [])[1] || '');
 
         let os = 'an unknown system';
-        if (ua.includes('Windows NT 10')) os = 'Windows';
-        else if (ua.includes('Windows')) os = 'Windows';
+        if (ua.includes('Windows')) os = 'Windows';
         else if (ua.includes('Mac OS X')) os = 'macOS';
         else if (ua.includes('Android')) os = 'Android';
         else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
@@ -581,8 +581,8 @@ function initApp() {
 
     function nextSnippet() {
         if (usedSnippets.length >= snippets.length) usedSnippets = [];
-        let s;
-        do { s = snippets[Math.floor(Math.random() * snippets.length)]; } while (usedSnippets.includes(s));
+        const available = snippets.filter(s => !usedSnippets.includes(s));
+        const s = available[Math.floor(Math.random() * available.length)];
         usedSnippets.push(s);
         currentSnippet = s;
         renderPrompt();
@@ -684,10 +684,11 @@ function typeText(el, text, speed) {
 
 function startMatrix() {
     const frame = document.querySelector('.frame');
+    const footer = document.querySelector('.footer');
 
     const overlay = document.createElement('div');
     overlay.className = 'terminal-takeover';
-    frame.appendChild(overlay);
+    frame.insertBefore(overlay, footer);
 
     const header = document.createElement('div');
     header.className = 'takeover-header';
@@ -698,7 +699,9 @@ function startMatrix() {
     terminal.className = 'takeover-terminal';
     overlay.appendChild(terminal);
 
-    requestAnimationFrame(() => overlay.classList.add('open'));
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => overlay.classList.add('open'));
+    });
 
     const lines = [
         { text: '> ...', delay: 1000 },
@@ -759,7 +762,7 @@ function startMatrix() {
         let scrambleInterval = setInterval(() => {
             allText.forEach(el => {
                 if (el.children.length === 0 && el.textContent.trim()) {
-                    el.textContent = el.textContent.split('').map(c =>
+                    el.textContent = [...el.textContent].map(c =>
                         c === ' ' ? ' ' : String.fromCharCode(33 + Math.floor(Math.random() * 94))
                     ).join('');
                 }
