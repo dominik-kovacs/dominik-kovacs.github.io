@@ -730,46 +730,43 @@ function startMatrix() {
     setTimeout(typeLine, 300);
 
     function selfDestruct(overlay) {
-        overlay.classList.add('flash-white');
+        overlay.remove();
+        document.body.classList.add('self-destruct');
+
+        const frame = document.querySelector('.frame');
+        frame.classList.add('glitch-out');
+
+        const allText = document.querySelectorAll('.frame *');
+        let scrambleInterval = setInterval(() => {
+            allText.forEach(el => {
+                if (el.children.length === 0 && el.textContent.trim()) {
+                    el.textContent = el.textContent.split('').map(c =>
+                        c === ' ' ? ' ' : String.fromCharCode(33 + Math.floor(Math.random() * 94))
+                    ).join('');
+                }
+            });
+        }, 50);
+
         setTimeout(() => {
-            overlay.remove();
-            document.body.classList.add('self-destruct');
+            clearInterval(scrambleInterval);
+            frame.classList.remove('glitch-out');
+            frame.classList.add('dissolve');
 
-            const frame = document.querySelector('.frame');
-            frame.classList.add('glitch-out');
-
-            const allText = document.querySelectorAll('.frame *');
-            let scrambleInterval = setInterval(() => {
-                allText.forEach(el => {
-                    if (el.children.length === 0 && el.textContent.trim()) {
-                        el.textContent = el.textContent.split('').map(c =>
-                            c === ' ' ? ' ' : String.fromCharCode(33 + Math.floor(Math.random() * 94))
-                        ).join('');
-                    }
-                });
-            }, 50);
+            for (let p = 0; p < 50; p++) {
+                const particle = document.createElement('div');
+                particle.className = 'destruct-particle';
+                particle.style.left = (Math.random() * 100) + '%';
+                particle.style.top = (Math.random() * 100) + '%';
+                particle.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px');
+                particle.style.setProperty('--dy', -(50 + Math.random() * 200) + 'px');
+                particle.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+                document.body.appendChild(particle);
+            }
 
             setTimeout(() => {
-                clearInterval(scrambleInterval);
-                frame.classList.remove('glitch-out');
-                frame.classList.add('dissolve');
-
-                for (let p = 0; p < 50; p++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'destruct-particle';
-                    particle.style.left = (Math.random() * 100) + '%';
-                    particle.style.top = (Math.random() * 100) + '%';
-                    particle.style.setProperty('--dx', (Math.random() * 200 - 100) + 'px');
-                    particle.style.setProperty('--dy', -(50 + Math.random() * 200) + 'px');
-                    particle.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
-                    document.body.appendChild(particle);
-                }
-
-                setTimeout(() => {
-                    window.close();
-                    window.location.href = 'about:blank';
-                }, 1500);
-            }, 1200);
-        }, 400);
+                window.close();
+                window.location.href = 'about:blank';
+            }, 1500);
+        }, 1200);
     }
 }
