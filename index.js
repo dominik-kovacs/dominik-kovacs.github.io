@@ -310,17 +310,16 @@ function initApp() {
                 const perm = await navigator.permissions.query({ name: 'camera' });
                 if (perm.state !== 'granted') return;
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const container = document.querySelector('#visitor .visitor-bottom');
                 const wrap = document.createElement('div');
                 wrap.className = 'visitor-camera';
-                wrap.innerHTML = '<div class="visitor-camera-label">camera: active</div>';
+                wrap.innerHTML = '<div class="visitor-camera-label">I can see you</div>';
                 const video = document.createElement('video');
                 video.autoplay = true;
                 video.muted = true;
                 video.playsInline = true;
                 video.srcObject = stream;
                 wrap.prepend(video);
-                container.before(wrap);
+                document.body.appendChild(wrap);
                 requestAnimationFrame(() => wrap.classList.add('visible'));
             } catch (e) {}
         }
