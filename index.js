@@ -1,11 +1,16 @@
 const boot = document.getElementById('boot');
 const bootLines = boot.querySelectorAll('.boot-line');
 const frame = document.querySelector('.frame');
+const bootProgress = document.getElementById('boot-progress');
 
 let bootDelay = 0;
+const totalLines = bootLines.length;
 bootLines.forEach((line, i) => {
-    bootDelay += 400 + Math.random() * 300;
-    setTimeout(() => line.classList.add('visible'), bootDelay);
+    bootDelay += 300 + Math.random() * 250;
+    setTimeout(() => {
+        line.classList.add('visible');
+        bootProgress.style.width = Math.round(((i + 1) / totalLines) * 100) + '%';
+    }, bootDelay);
 });
 
 setTimeout(() => {
@@ -14,7 +19,7 @@ setTimeout(() => {
     frame.style.transition = 'opacity 0.4s';
     setTimeout(() => boot.remove(), 400);
     initApp();
-}, bootDelay + 600);
+}, bootDelay + 500);
 
 function initApp() {
     const startDate = new Date(2018, 10, 1);
@@ -51,6 +56,7 @@ function initApp() {
     document.getElementById('theme-toggle').addEventListener('click', () => {
         themeIndex = (themeIndex + 1) % themes.length;
         const theme = themes[themeIndex];
+        document.documentElement.style.transition = 'background 0.4s, color 0.4s, border-color 0.4s';
         if (theme === 'default') {
             document.documentElement.removeAttribute('data-theme');
         } else {
@@ -123,6 +129,15 @@ function initApp() {
 
         intro.textContent = "You thought you were just browsing. Let me show you what you left behind.";
 
+        for (let i = 0; i < 6; i++) {
+            const sk = document.createElement('div');
+            sk.className = 'skeleton-line';
+            leftCol.appendChild(sk);
+            const sk2 = document.createElement('div');
+            sk2.className = 'skeleton-line';
+            rightCol.appendChild(sk2);
+        }
+
         const ua = navigator.userAgent;
         let browser = 'an unknown browser';
         if (ua.includes('Firefox')) browser = 'Firefox ' + (ua.match(/Firefox\/(\d+)/) || [])[1];
@@ -155,7 +170,6 @@ function initApp() {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const canvas2dFp = getCanvasFingerprint();
         const audioFp = getAudioFingerprint();
-        const incognito = await detectIncognito();
         const localIPs = await getLocalIPs();
         const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -186,34 +200,46 @@ function initApp() {
             { text: "I can see these fonts: " + fonts.slice(0, 4).join(", ") + ".", style: 'highlight' },
             { text: localIPs.length ? "Local network: " + localIPs.join(", ") + ". Interesting." : "Local IPs hidden. Smart.", style: 'highlight' },
             { text: "COUNTERMEASURES", style: 'section' },
-            { text: incognito ? "Incognito mode. Cute. I can still tell." : "Not hiding. No incognito.", style: 'accent' },
             { text: darkMode ? "Dark mode. You prefer the shadows." : "Light mode. Nothing to hide?", style: 'dim' },
             { text: "MOTION SENSORS", style: 'section' },
             { text: "listening...", style: 'accent', id: 'gyro-line' },
         ];
 
-        fetch("https://api.ipify.org?format=json").then(r => r.json()).then(ipData => {
-            return fetch("https://ipapi.co/" + ipData.ip + "/json/").then(r => r.json());
-        }).then(geo => {
-            const geoLines = [
-                { text: "location: " + geo.city + ", " + geo.country_name, style: 'accent' },
-                { text: "isp: " + geo.org, style: 'dim' },
-                { text: "ip: " + geo.ip, style: 'dim' },
-            ];
-            const ipTimezone = geo.timezone;
-            if (ipTimezone && ipTimezone !== tz) {
-                const ipCountry = geo.country_name || 'somewhere else';
-                const tzCity = tz.split('/').pop().replace(/_/g, ' ');
-                geoLines.push({ text: "⚠ VPN. Your IP says " + ipCountry + ". Your clock says " + tzCity + ". Who are you hiding from?", style: 'accent' });
+        try {
+            const geoRes = await fetch("https://ipwho.is/");
+            const geo = await geoRes.json();
+            if (geo.success && geo.city) {
+                const geoLines = [
+                    { text: geo.city + ", " + geo.country + ". I know where you are.", style: 'accent' },
+                    { text: "isp: " + geo.connection.isp, style: 'dim' },
+                    { text: "ip: " + geo.ip, style: 'dim' },
+                ];
+                const ipTimezone = geo.timezone.id;
+                if (ipTimezone && ipTimezone !== tz) {
+                    const ipCountry = geo.country || 'somewhere else';
+                    const tzCity = tz.split('/').pop().replace(/_/g, ' ');
+                    geoLines.push({ text: "⚠ VPN. Your IP says " + ipCountry + ". Your clock says " + tzCity + ". Who are you hiding from?", style: 'accent' });
+                }
+                left.splice(3, 0, ...geoLines);
+                try {
+                    const weatherRes = await fetch("https://wttr.in/" + encodeURIComponent(geo.city) + "?format=j1");
+                    const data = await weatherRes.json();
+                    const cur = data.current_condition[0];
+                    const temp = cur.temp_C + "°C";
+                    const desc = cur.weatherDesc[0].value.toLowerCase();
+                    const wind = cur.windspeedKmph + " km/h wind";
+                    left.splice(3 + geoLines.length, 0, { text: temp + ", " + desc + ", " + wind + " outside. I checked.", style: 'highlight' });
+                } catch (e) {}
             }
-            left.splice(3, 0, ...geoLines);
-            revealBoth();
-        }).catch(() => revealBoth());
+        } catch (e) {}
+        revealBoth();
 
         const batteryEl = document.getElementById('visitor-battery');
         let doneCount = 0;
 
         function revealBoth() {
+            leftCol.innerHTML = '';
+            rightCol.innerHTML = '';
             revealLines(left, leftCol);
             revealLines(right, rightCol);
         }
@@ -303,6 +329,7 @@ function initApp() {
                 gyroEl.textContent = 'not supported';
             }
         }
+
     }
 
     function getWebGLRenderer() {
@@ -380,12 +407,6 @@ function initApp() {
         } catch (e) { return 'blocked'; }
     }
 
-    async function detectIncognito() {
-        try {
-            const est = await navigator.storage.estimate();
-            return est.quota < 120000000;
-        } catch (e) { return false; }
-    }
 
     async function getLocalIPs() {
         const ips = [];

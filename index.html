@@ -52,6 +52,7 @@
             display: flex;
             flex-direction: column;
             padding: 16px;
+            transition: background 0.4s;
         }
 
         .frame {
@@ -61,6 +62,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            transition: border-color 0.4s;
         }
 
         .frame::before {
@@ -86,12 +88,25 @@
             cursor: pointer;
             border-right: 1px solid var(--border);
             font-size: 13px;
+            position: relative;
+            transition: color 0.2s;
         }
 
         .nav-item:last-child { border-right: none; }
         .nav-item.active { color: var(--accent); background: var(--panel); }
         .nav-item.active::before { content: '▸ '; }
-        .nav-item:not(.active):hover { color: var(--dim); }
+        .nav-item:not(.active):hover { color: var(--fg); }
+        .nav-item:not(.active)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.2s, left 0.2s;
+        }
+        .nav-item:not(.active):hover::after { width: 60%; left: 20%; }
 
         .content {
             flex: 1;
@@ -103,10 +118,18 @@
             border-radius: 0 0 4px 4px;
             position: relative;
         }
-        .section { display: none; max-width: 750px; width: 100%; opacity: 0; transform: translateX(30px); transition: opacity 0.3s, transform 0.3s; }
+        .section { display: none; max-width: 750px; width: 100%; opacity: 0; transform: translateX(20px); transition: opacity 0.35s, transform 0.35s; }
         .section.active { display: block; opacity: 1; transform: translateX(0); }
-        .section.slide-left { transform: translateX(-30px); }
-        .section.slide-right { transform: translateX(30px); }
+        .section.slide-left { transform: translateX(-20px); }
+        .section.slide-right { transform: translateX(20px); }
+        .section.active > * { animation: fadeInUp 0.4s ease both; }
+        .section.active > *:nth-child(1) { animation-delay: 0s; }
+        .section.active > *:nth-child(2) { animation-delay: 0.05s; }
+        .section.active > *:nth-child(3) { animation-delay: 0.1s; }
+        .section.active > *:nth-child(4) { animation-delay: 0.15s; }
+        .section.active > *:nth-child(5) { animation-delay: 0.2s; }
+        .section.active > *:nth-child(6) { animation-delay: 0.25s; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .timeline { position: relative; padding-left: 24px; }
         .timeline::before {
@@ -261,8 +284,16 @@
             transition: opacity 0.4s;
         }
         .boot-screen.fade-out { opacity: 0; }
-        .boot-line { margin-bottom: 4px; opacity: 0; }
+        .boot-line { margin-bottom: 4px; opacity: 0; transition: opacity 0.3s; }
         .boot-line.visible { opacity: 1; }
+        .boot-progress { width: 200px; height: 2px; background: var(--border); margin-top: 16px; border-radius: 1px; overflow: hidden; }
+        .boot-progress-fill { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+
+        .skeleton-line { height: 12px; background: var(--panel); border-radius: 3px; margin-bottom: 10px; animation: shimmer 1.5s infinite; }
+        .skeleton-line:nth-child(odd) { width: 80%; }
+        .skeleton-line:nth-child(even) { width: 60%; }
+        @keyframes shimmer { 0% { opacity: 0.4; } 50% { opacity: 0.7; } 100% { opacity: 0.4; } }
+
 
         .footer-clock { color: var(--dim); font-size: 11px; font-family: inherit; }
 
@@ -399,17 +430,21 @@
             .visitor-line.vl-highlight { font-size: 12px; }
             .defuse-timer { font-size: 22px; }
             .defuse-prompt { padding: 14px 16px; font-size: 13px; min-height: 60px; }
+            .content { scroll-snap-type: x mandatory; }
+            .section { scroll-snap-align: center; }
             .footer { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="boot-screen" id="boot">
-        <div class="boot-line">BIOS v1.0.0 — dominikkovacs.sk</div>
-        <div class="boot-line">Checking system memory... OK</div>
-        <div class="boot-line">Loading portfolio modules... OK</div>
-        <div class="boot-line">Initializing TUI interface...</div>
+        <div class="boot-line">POST v1.0.0 — dominikkovacs.me</div>
+        <div class="boot-line">Memory check.......... 64 KB OK</div>
+        <div class="boot-line">Scanning drives....... /dev/portfolio</div>
+        <div class="boot-line">Loading modules....... [core, ui, data]</div>
+        <div class="boot-line">Establishing uplink... OK</div>
         <div class="boot-line">Ready.</div>
+        <div class="boot-progress"><div class="boot-progress-fill" id="boot-progress"></div></div>
     </div>
     <div class="frame" style="opacity: 0;">
         <div class="nav" id="nav">
