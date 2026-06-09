@@ -287,23 +287,23 @@
 
         .general-greeting { color: var(--dim); font-size: 12px; margin-bottom: 6px; }
 
-        #visitor { max-width: 900px; }
-        .visitor-intro { color: var(--accent); font-size: 16px; margin-bottom: 24px; }
+        #visitor { max-width: 960px; }
+        .visitor-intro { color: var(--accent); font-size: 15px; margin-bottom: 20px; }
         .visitor-intro::before { content: '> '; color: var(--muted); }
-        .visitor-columns { display: flex; gap: 40px; }
-        .visitor-facts { line-height: 1.7; flex: 1; }
-        .visitor-line { opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.4s; padding-left: 16px; }
+        .visitor-columns { display: flex; gap: 48px; }
+        .visitor-facts { line-height: 1.8; flex: 1; }
+        .visitor-line { opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.3s; padding-left: 14px; font-size: 12px; }
         .visitor-line.visible { opacity: 1; transform: translateY(0); }
         .visitor-line.vl-highlight { color: #fff; font-size: 13px; }
         .visitor-line.vl-highlight::before { content: '  '; }
-        .visitor-line.vl-dim { color: var(--dim); font-size: 12px; }
+        .visitor-line.vl-dim { color: var(--dim); }
         .visitor-line.vl-dim::before { content: '  '; }
         .visitor-line.vl-accent { color: var(--accent); font-size: 13px; }
         .visitor-line.vl-accent::before { content: '→ '; color: var(--muted); }
-        .visitor-line.vl-section { color: var(--muted); font-size: 11px; letter-spacing: 1px; border-left: 2px solid var(--accent); padding-left: 10px; margin-top: 2px; }
-        .visitor-separator { height: 0; margin: 12px 0; opacity: 0; transition: opacity 0.4s; }
-        .visitor-separator.visible { opacity: 1; }
-        .visitor-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .visitor-line.vl-section { color: var(--muted); font-size: 11px; letter-spacing: 1.5px; border-left: 2px solid var(--accent); padding-left: 10px; margin-top: 14px; margin-bottom: 6px; }
+        .visitor-line.vl-section:first-child { margin-top: 0; }
+        .visitor-separator { display: none; }
+        .visitor-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 10px; border-top: 1px solid var(--border); }
         .visitor-outro { color: var(--dim); font-size: 11px; opacity: 0; transition: opacity 0.6s; }
         .visitor-outro::before { content: '# '; color: var(--muted); }
         .visitor-outro.visible { opacity: 1; }

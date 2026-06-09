@@ -121,7 +121,7 @@ function initApp() {
         const rightCol = document.getElementById('visitor-facts-right');
         const outro = document.getElementById('visitor-outro');
 
-        intro.textContent = "Enough about me. Let's talk about you.";
+        intro.textContent = "You thought you were just browsing. Let me show you what you left behind.";
 
         const ua = navigator.userAgent;
         let browser = 'an unknown browser';
@@ -153,87 +153,42 @@ function initApp() {
         } catch (e) { langs = navigator.language; }
 
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const utcOffset = new Date().getTimezoneOffset();
-        const offsetStr = (utcOffset <= 0 ? '+' : '-') + String(Math.abs(Math.floor(utcOffset / 60))).padStart(2, '0') + ':' + String(Math.abs(utcOffset % 60)).padStart(2, '0');
-        const orientation = screen.orientation ? screen.orientation.type.replace('-primary', '').replace('-secondary', '') : 'unknown';
-        const referrer = document.referrer ? new URL(document.referrer).hostname : 'direct (typed or bookmarked)';
-        const plugins = navigator.plugins ? navigator.plugins.length : 0;
         const canvas2dFp = getCanvasFingerprint();
         const audioFp = getAudioFingerprint();
         const incognito = await detectIncognito();
         const localIPs = await getLocalIPs();
-        const gamepads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean).length : 0;
-        const webgl2 = !!document.createElement('canvas').getContext('webgl2');
-        const maxTexture = getMaxTextureSize();
         const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const adBlock = await detectAdBlock();
-        const storageQuota = await getStorageQuota();
-        const media = await getMediaDevices();
+
+        const cpuCores = navigator.hardwareConcurrency || '?';
+        const ramStr = navigator.deviceMemory ? '~' + navigator.deviceMemory + ' GB' : null;
 
         const left = [
-            { text: "CONNECTION", style: 'section' },
-            { text: "The moment you opened this page, your", style: 'dim' },
-            { text: "browser started talking.", style: 'dim' },
-            { text: "arrived: " + arrived, style: 'highlight' },
-            { text: "status: online", style: 'dim' },
-            { type: 'separator' },
-            { text: "DEVICE", style: 'section' },
-            { text: "Every site you visit knows exactly what", style: 'dim' },
-            { text: "you are using to look at it.", style: 'dim' },
-            { text: "browser: " + browser, style: 'highlight' },
-            { text: "os: " + os, style: 'highlight' },
-            { text: "screen: " + screen.width + "×" + screen.height + " @ " + devicePixelRatio + "x", style: 'accent' },
-            { text: "viewport: " + window.innerWidth + "×" + window.innerHeight, style: 'dim' },
-            { text: "orientation: " + orientation, style: 'dim' },
-            { text: "input: " + (touch ? "touchscreen (" + navigator.maxTouchPoints + " pts)" : "mouse + keyboard"), style: 'dim' },
-            { text: "gamepads: " + (gamepads > 0 ? gamepads + " connected" : "none"), style: 'dim' },
-            { type: 'separator' },
-            { text: "HARDWARE", style: 'section' },
-            { text: "Your machine whispers its specs to every", style: 'dim' },
-            { text: "page it renders. This is what I heard.", style: 'dim' },
-            { text: "cpu: " + (navigator.hardwareConcurrency || "?") + " cores", style: 'highlight' },
-            { text: "ram: " + (navigator.deviceMemory ? "~" + navigator.deviceMemory + " GB" : "hidden"), style: 'highlight' },
-            { text: "gpu: " + gpu, style: 'accent' },
-            { text: "webgl2: " + (webgl2 ? "supported" : "no"), style: 'dim' },
-            { text: "max texture: " + maxTexture + "px", style: 'dim' },
-            { text: "color depth: " + screen.colorDepth + "-bit", style: 'dim' },
-            { text: "network: " + (conn ? conn.effectiveType.toUpperCase() + " ~" + conn.downlink + " Mbps" : "hidden"), style: 'accent' },
-            { text: "storage: " + storageQuota, style: 'dim' },
+            { text: "SUBJECT CONTACT", style: 'section' },
+            { text: "You walked in at " + arrived + ".", style: 'highlight' },
+            { text: "I've been watching since.", style: 'dim' },
+            { text: "IDENTIFICATION", style: 'section' },
+            { text: "You're running " + browser + " on " + os + ".", style: 'highlight' },
+            { text: screen.width + "×" + screen.height + " display, " + devicePixelRatio + "x density.", style: 'accent' },
+            { text: touch ? "Touchscreen. " + navigator.maxTouchPoints + " contact points. Mobile." : "Mouse and keyboard. You're at a desk.", style: 'dim' },
+            { text: "HARDWARE PROFILE", style: 'section' },
+            { text: cpuCores + " CPU cores. " + (ramStr ? ramStr + " of RAM." : "RAM hidden — cautious."), style: 'highlight' },
+            { text: gpu, style: 'accent' },
+            { text: conn ? "Connection: " + conn.effectiveType.toUpperCase() + ", ~" + conn.downlink + " Mbps downstream." : "Network details hidden.", style: 'dim' },
         ];
 
         const right = [
-            { text: "LOCALE & TIME", style: 'section' },
-            { text: "Your clock and locale betray where you", style: 'dim' },
-            { text: "are more precisely than your IP ever could.", style: 'dim' },
-            { text: langs, style: 'highlight' },
-            { text: "timezone: " + tz, style: 'accent' },
-            { text: "utc offset: " + offsetStr, style: 'dim' },
-            { text: "referrer: " + referrer, style: 'dim' },
-            { type: 'separator' },
-            { text: "FINGERPRINT", style: 'section' },
-            { text: "These hashes uniquely identify your", style: 'dim' },
-            { text: "browser without storing anything.", style: 'dim' },
-            { text: "canvas: " + canvas2dFp, style: 'accent' },
-            { text: "audio: " + audioFp, style: 'accent' },
-            { text: "fonts: " + fonts.slice(0, 6).join(", "), style: 'highlight' },
-            { text: "plugins: " + plugins, style: 'dim' },
-            { text: "local IPs: " + (localIPs.length ? localIPs.join(", ") : "hidden by browser"), style: 'highlight' },
-            { type: 'separator' },
-            { text: "PRIVACY", style: 'section' },
-            { text: "These are the boundaries you set.", style: 'dim' },
-            { text: "Most sites quietly ignore them.", style: 'dim' },
-            { text: "incognito: " + (incognito ? "yes — but I can still tell" : "no"), style: 'accent' },
-            { text: "do not track: " + (navigator.doNotTrack === '1' ? "on (ignored by 99% of sites)" : "off"), style: 'highlight' },
-            { text: "cookies: " + (navigator.cookieEnabled ? "enabled" : "disabled"), style: 'dim' },
-            { text: "ad blocker: " + (adBlock ? "detected" : "none detected"), style: 'highlight' },
-            { text: "dark mode: " + (darkMode ? "yes" : "no"), style: 'dim' },
-            { text: "reduced motion: " + (reducedMotion ? "yes" : "no"), style: 'dim' },
-            { text: "cameras: " + media.cams + " | mics: " + media.mics + " | speakers: " + media.speakers, style: 'highlight' },
-            { type: 'separator' },
-            { text: "MOTION", style: 'section' },
-            { text: "Your device has sensors that report", style: 'dim' },
-            { text: "how you're holding it right now.", style: 'dim' },
+            { text: "LOCATION ANALYSIS", style: 'section' },
+            { text: "You speak " + langs + ".", style: 'highlight' },
+            { text: "Clock says " + tz.split('/').pop().replace(/_/g, ' ') + ".", style: 'accent' },
+            { text: "UNIQUE SIGNATURE", style: 'section' },
+            { text: "Canvas hash: " + canvas2dFp, style: 'accent' },
+            { text: "Audio hash: " + audioFp, style: 'accent' },
+            { text: "I can see these fonts: " + fonts.slice(0, 4).join(", ") + ".", style: 'highlight' },
+            { text: localIPs.length ? "Local network: " + localIPs.join(", ") + ". Interesting." : "Local IPs hidden. Smart.", style: 'highlight' },
+            { text: "COUNTERMEASURES", style: 'section' },
+            { text: incognito ? "Incognito mode. Cute. I can still tell." : "Not hiding. No incognito.", style: 'accent' },
+            { text: darkMode ? "Dark mode. You prefer the shadows." : "Light mode. Nothing to hide?", style: 'dim' },
+            { text: "MOTION SENSORS", style: 'section' },
             { text: "listening...", style: 'accent', id: 'gyro-line' },
         ];
 
@@ -249,7 +204,7 @@ function initApp() {
             if (ipTimezone && ipTimezone !== tz) {
                 const ipCountry = geo.country_name || 'somewhere else';
                 const tzCity = tz.split('/').pop().replace(/_/g, ' ');
-                geoLines.push({ text: "⚠ VPN detected — IP says " + ipCountry + " but your clock says " + tzCity, style: 'accent' });
+                geoLines.push({ text: "⚠ VPN. Your IP says " + ipCountry + ". Your clock says " + tzCity + ". Who are you hiding from?", style: 'accent' });
             }
             left.splice(3, 0, ...geoLines);
             revealBoth();
@@ -313,7 +268,7 @@ function initApp() {
         }
 
         function showOutro() {
-            outro.textContent = "No cookies stored. No accounts. Just your browser, quietly revealing everything to anyone who asks.";
+            outro.textContent = "No cookies. No tracking. I didn't need any of that to learn all this.";
             requestAnimationFrame(() => outro.classList.add('visible'));
             initGyroscope();
         }
@@ -325,23 +280,23 @@ function initApp() {
             if (window.DeviceOrientationEvent) {
                 window.addEventListener('deviceorientation', (e) => {
                     if (e.alpha === null && e.beta === null && e.gamma === null) {
-                        gyroEl.textContent = 'no motion sensors (desktop?)';
+                        gyroEl.textContent = 'No sensors. Desktop. Sitting still.';
                         return;
                     }
                     const beta = Math.round(e.beta || 0);
                     const gamma = Math.round(e.gamma || 0);
                     let posture = '';
-                    if (beta > 70) posture = 'upright — holding in front of you';
-                    else if (beta > 40) posture = 'tilted — on a desk maybe?';
-                    else if (beta < 15 && beta > -15) posture = 'flat — lying down?';
-                    else if (beta < -30) posture = 'face down — why?';
-                    else posture = 'angled at ' + beta + '°';
-                    if (Math.abs(gamma) > 45) posture = 'landscape — rotated sideways';
-                    gyroEl.textContent = posture + ' (tilt: ' + beta + '° / ' + gamma + '°)';
+                    if (beta > 70) posture = "You're holding it up. Reading carefully.";
+                    else if (beta > 40) posture = "Tilted. On a desk? Leaning forward.";
+                    else if (beta < 15 && beta > -15) posture = "Flat. You're lying down.";
+                    else if (beta < -30) posture = "Face down. Are you hiding the screen?";
+                    else posture = "Tilted " + beta + "°. Interesting angle.";
+                    if (Math.abs(gamma) > 45) posture = "Landscape. You rotated your phone.";
+                    gyroEl.textContent = posture;
                 });
                 setTimeout(() => {
                     if (gyroEl.textContent === 'listening...') {
-                        gyroEl.textContent = 'no motion sensors (desktop?)';
+                        gyroEl.textContent = 'No sensors. Desktop. Sitting still.';
                     }
                 }, 2000);
             } else {
@@ -452,39 +407,6 @@ function initApp() {
         return ips;
     }
 
-    function getMaxTextureSize() {
-        try {
-            const c = document.createElement('canvas');
-            const gl = c.getContext('webgl');
-            return gl ? gl.getParameter(gl.MAX_TEXTURE_SIZE) : '?';
-        } catch (e) { return '?'; }
-    }
-
-    async function detectAdBlock() {
-        try {
-            const res = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { method: 'HEAD', mode: 'no-cors' });
-            return false;
-        } catch (e) { return true; }
-    }
-
-    async function getStorageQuota() {
-        try {
-            const est = await navigator.storage.estimate();
-            const gb = (est.quota / (1024 * 1024 * 1024)).toFixed(1);
-            const used = ((est.usage || 0) / (1024 * 1024)).toFixed(1);
-            return gb + " GB available, " + used + " MB used";
-        } catch (e) { return 'unknown'; }
-    }
-
-    async function getMediaDevices() {
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const cams = devices.filter(d => d.kind === 'videoinput').length;
-            const mics = devices.filter(d => d.kind === 'audioinput').length;
-            const speakers = devices.filter(d => d.kind === 'audiooutput').length;
-            return { cams, mics, speakers };
-        } catch (e) { return { cams: 0, mics: 0, speakers: 0 }; }
-    }
 
     const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
     let konamiIndex = 0;
@@ -545,8 +467,8 @@ function initApp() {
         const time = m > 0 ? `${m}m ${s}s` : `${s}s`;
         statsEl.textContent = `You've been here ${time}, switched ${tabSwitches} tabs, clicked ${clicks} times, moved ${moves.toLocaleString()} pixels`;
     }
-    setInterval(updateStats, 1000);
-    updateStats();
+    function statsLoop() { updateStats(); requestAnimationFrame(statsLoop); }
+    statsLoop();
 
     const snippets = [
         'git push origin main',
