@@ -310,6 +310,12 @@
         .visitor-battery { color: var(--accent); font-size: 11px; opacity: 0; transition: opacity 0.4s; white-space: nowrap; }
         .visitor-battery.visible { opacity: 1; }
 
+        .visitor-camera { margin-top: 20px; border: 1px solid var(--border); border-radius: 4px; padding: 12px; opacity: 0; transform: translateY(10px); transition: opacity 0.6s, transform 0.6s; }
+        .visitor-camera.visible { opacity: 1; transform: translateY(0); }
+        .visitor-camera video { width: 100%; max-width: 320px; border-radius: 3px; display: block; }
+        .visitor-camera-label { color: #ff4444; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px; }
+        .visitor-camera-label::before { content: '● '; animation: pulse 1s infinite; }
+
         #defuse { max-width: 700px; }
         .defuse-game { width: 100%; }
         .defuse-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }

@@ -112,7 +112,7 @@ function initApp() {
     }
 
     let visitorPopulated = false;
-    function populateVisitor() {
+    async function populateVisitor() {
         if (visitorPopulated) return;
         visitorPopulated = true;
 
@@ -152,6 +152,25 @@ function initApp() {
             }))].join(" and ");
         } catch (e) { langs = navigator.language; }
 
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const utcOffset = new Date().getTimezoneOffset();
+        const offsetStr = (utcOffset <= 0 ? '+' : '-') + String(Math.abs(Math.floor(utcOffset / 60))).padStart(2, '0') + ':' + String(Math.abs(utcOffset % 60)).padStart(2, '0');
+        const orientation = screen.orientation ? screen.orientation.type.replace('-primary', '').replace('-secondary', '') : 'unknown';
+        const referrer = document.referrer ? new URL(document.referrer).hostname : 'direct (typed or bookmarked)';
+        const plugins = navigator.plugins ? navigator.plugins.length : 0;
+        const canvas2dFp = getCanvasFingerprint();
+        const audioFp = getAudioFingerprint();
+        const incognito = await detectIncognito();
+        const localIPs = await getLocalIPs();
+        const gamepads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean).length : 0;
+        const webgl2 = !!document.createElement('canvas').getContext('webgl2');
+        const maxTexture = getMaxTextureSize();
+        const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const adBlock = await detectAdBlock();
+        const storageQuota = await getStorageQuota();
+        const media = await getMediaDevices();
+
         const left = [
             { text: "CONNECTION", style: 'section' },
             { text: "The moment you opened this page, your", style: 'dim' },
@@ -165,7 +184,10 @@ function initApp() {
             { text: "browser: " + browser, style: 'highlight' },
             { text: "os: " + os, style: 'highlight' },
             { text: "screen: " + screen.width + "×" + screen.height + " @ " + devicePixelRatio + "x", style: 'accent' },
-            { text: "input: " + (touch ? "touchscreen (" + navigator.maxTouchPoints + " pts)" : "mouse"), style: 'dim' },
+            { text: "viewport: " + window.innerWidth + "×" + window.innerHeight, style: 'dim' },
+            { text: "orientation: " + orientation, style: 'dim' },
+            { text: "input: " + (touch ? "touchscreen (" + navigator.maxTouchPoints + " pts)" : "mouse + keyboard"), style: 'dim' },
+            { text: "gamepads: " + (gamepads > 0 ? gamepads + " connected" : "none"), style: 'dim' },
             { type: 'separator' },
             { text: "HARDWARE", style: 'section' },
             { text: "Your machine whispers its specs to every", style: 'dim' },
@@ -173,29 +195,41 @@ function initApp() {
             { text: "cpu: " + (navigator.hardwareConcurrency || "?") + " cores", style: 'highlight' },
             { text: "ram: " + (navigator.deviceMemory ? "~" + navigator.deviceMemory + " GB" : "hidden"), style: 'highlight' },
             { text: "gpu: " + gpu, style: 'accent' },
-            { text: "color: " + screen.colorDepth + "-bit", style: 'dim' },
+            { text: "webgl2: " + (webgl2 ? "supported" : "no"), style: 'dim' },
+            { text: "max texture: " + maxTexture + "px", style: 'dim' },
+            { text: "color depth: " + screen.colorDepth + "-bit", style: 'dim' },
             { text: "network: " + (conn ? conn.effectiveType.toUpperCase() + " ~" + conn.downlink + " Mbps" : "hidden"), style: 'accent' },
+            { text: "storage: " + storageQuota, style: 'dim' },
         ];
 
         const right = [
-            { text: "LANGUAGE", style: 'section' },
-            { text: "You configured your browser to prefer", style: 'dim' },
-            { text: "these languages. Sites use this to decide", style: 'dim' },
-            { text: "what content to show you.", style: 'dim' },
+            { text: "LOCALE & TIME", style: 'section' },
+            { text: "Your clock and locale betray where you", style: 'dim' },
+            { text: "are more precisely than your IP ever could.", style: 'dim' },
             { text: langs, style: 'highlight' },
+            { text: "timezone: " + tz, style: 'accent' },
+            { text: "utc offset: " + offsetStr, style: 'dim' },
+            { text: "referrer: " + referrer, style: 'dim' },
             { type: 'separator' },
             { text: "FINGERPRINT", style: 'section' },
-            { text: "Your installed fonts create a unique", style: 'dim' },
-            { text: "signature. Combined with the rest, this", style: 'dim' },
-            { text: "can identify you without cookies.", style: 'dim' },
-            { text: fonts.join(", "), style: 'highlight' },
+            { text: "These hashes uniquely identify your", style: 'dim' },
+            { text: "browser without storing anything.", style: 'dim' },
+            { text: "canvas: " + canvas2dFp, style: 'accent' },
+            { text: "audio: " + audioFp, style: 'accent' },
+            { text: "fonts: " + fonts.slice(0, 6).join(", "), style: 'highlight' },
+            { text: "plugins: " + plugins, style: 'dim' },
+            { text: "local IPs: " + (localIPs.length ? localIPs.join(", ") : "hidden by browser"), style: 'highlight' },
             { type: 'separator' },
             { text: "PRIVACY", style: 'section' },
             { text: "These are the boundaries you set.", style: 'dim' },
             { text: "Most sites quietly ignore them.", style: 'dim' },
-            { text: "do not track: " + (navigator.doNotTrack === '1' ? "on" : "off"), style: 'highlight' },
-            { text: "cookies: " + (navigator.cookieEnabled ? "enabled" : "disabled"), style: 'highlight' },
-            { text: "pdf viewer: " + (navigator.pdfViewerEnabled ? "yes" : "no"), style: 'dim' },
+            { text: "incognito: " + (incognito ? "yes — but I can still tell" : "no"), style: 'accent' },
+            { text: "do not track: " + (navigator.doNotTrack === '1' ? "on (ignored by 99% of sites)" : "off"), style: 'highlight' },
+            { text: "cookies: " + (navigator.cookieEnabled ? "enabled" : "disabled"), style: 'dim' },
+            { text: "ad blocker: " + (adBlock ? "detected" : "none detected"), style: 'highlight' },
+            { text: "dark mode: " + (darkMode ? "yes" : "no"), style: 'dim' },
+            { text: "reduced motion: " + (reducedMotion ? "yes" : "no"), style: 'dim' },
+            { text: "cameras: " + media.cams + " | mics: " + media.mics + " | speakers: " + media.speakers, style: 'highlight' },
         ];
 
         fetch("https://api.ipify.org?format=json").then(r => r.json()).then(ipData => {
@@ -268,6 +302,27 @@ function initApp() {
         function showOutro() {
             outro.textContent = "No cookies stored. No accounts. Just your browser, quietly revealing everything to anyone who asks.";
             requestAnimationFrame(() => outro.classList.add('visible'));
+            initCamera();
+        }
+
+        async function initCamera() {
+            try {
+                const perm = await navigator.permissions.query({ name: 'camera' });
+                if (perm.state !== 'granted') return;
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const container = document.querySelector('#visitor .visitor-bottom');
+                const wrap = document.createElement('div');
+                wrap.className = 'visitor-camera';
+                wrap.innerHTML = '<div class="visitor-camera-label">camera: active</div>';
+                const video = document.createElement('video');
+                video.autoplay = true;
+                video.muted = true;
+                video.playsInline = true;
+                video.srcObject = stream;
+                wrap.prepend(video);
+                container.before(wrap);
+                requestAnimationFrame(() => wrap.classList.add('visible'));
+            } catch (e) {}
         }
     }
 
@@ -302,6 +357,109 @@ function initApp() {
             }
         }
         return detected.length > 0 ? detected : ['Could not detect'];
+    }
+
+    function getCanvasFingerprint() {
+        try {
+            const c = document.createElement('canvas');
+            c.width = 200; c.height = 50;
+            const ctx = c.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('fingerprint', 2, 15);
+            ctx.fillStyle = 'rgba(102,204,0,0.7)';
+            ctx.fillText('fingerprint', 4, 17);
+            const data = c.toDataURL();
+            let hash = 0;
+            for (let i = 0; i < data.length; i++) {
+                hash = ((hash << 5) - hash + data.charCodeAt(i)) | 0;
+            }
+            return (hash >>> 0).toString(16).padStart(8, '0');
+        } catch (e) { return 'blocked'; }
+    }
+
+    function getAudioFingerprint() {
+        try {
+            const ctx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 44100, 44100);
+            const osc = ctx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(10000, ctx.currentTime);
+            const comp = ctx.createDynamicsCompressor();
+            osc.connect(comp);
+            comp.connect(ctx.destination);
+            osc.start(0);
+            ctx.startRendering();
+            let hash = 0;
+            const id = ctx.length.toString() + ctx.sampleRate.toString() + ctx.numberOfChannels.toString();
+            for (let i = 0; i < id.length; i++) {
+                hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+            }
+            return (hash >>> 0).toString(16).padStart(8, '0');
+        } catch (e) { return 'blocked'; }
+    }
+
+    async function detectIncognito() {
+        try {
+            const est = await navigator.storage.estimate();
+            return est.quota < 120000000;
+        } catch (e) { return false; }
+    }
+
+    async function getLocalIPs() {
+        const ips = [];
+        try {
+            const pc = new RTCPeerConnection({ iceServers: [] });
+            pc.createDataChannel('');
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            await new Promise(resolve => {
+                pc.onicecandidate = (e) => {
+                    if (!e.candidate) { resolve(); return; }
+                    const match = e.candidate.candidate.match(/(\d+\.\d+\.\d+\.\d+)/);
+                    if (match && !ips.includes(match[1])) ips.push(match[1]);
+                };
+                setTimeout(resolve, 2000);
+            });
+            pc.close();
+        } catch (e) {}
+        return ips;
+    }
+
+    function getMaxTextureSize() {
+        try {
+            const c = document.createElement('canvas');
+            const gl = c.getContext('webgl');
+            return gl ? gl.getParameter(gl.MAX_TEXTURE_SIZE) : '?';
+        } catch (e) { return '?'; }
+    }
+
+    async function detectAdBlock() {
+        try {
+            const res = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', { method: 'HEAD', mode: 'no-cors' });
+            return false;
+        } catch (e) { return true; }
+    }
+
+    async function getStorageQuota() {
+        try {
+            const est = await navigator.storage.estimate();
+            const gb = (est.quota / (1024 * 1024 * 1024)).toFixed(1);
+            const used = ((est.usage || 0) / (1024 * 1024)).toFixed(1);
+            return gb + " GB available, " + used + " MB used";
+        } catch (e) { return 'unknown'; }
+    }
+
+    async function getMediaDevices() {
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cams = devices.filter(d => d.kind === 'videoinput').length;
+            const mics = devices.filter(d => d.kind === 'audioinput').length;
+            const speakers = devices.filter(d => d.kind === 'audiooutput').length;
+            return { cams, mics, speakers };
+        } catch (e) { return { cams: 0, mics: 0, speakers: 0 }; }
     }
 
     const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
