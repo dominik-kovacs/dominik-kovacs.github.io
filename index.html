@@ -14,7 +14,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-
         :root {
             --bg: #0a0a0f;
             --fg: #e0e0e0;
@@ -101,8 +100,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-radius: 0 0 4px 4px;
             position: relative;
         }
         .section { display: none; max-width: 750px; width: 100%; opacity: 0; transform: translateX(30px); transition: opacity 0.3s, transform 0.3s; }
@@ -176,7 +174,6 @@
             letter-spacing: 1px;
             font-weight: bold;
         }
-        .cert-badge.expired { background: var(--border); color: var(--dim); }
         .cert-badge.upcoming { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
 
         .general-center { text-align: center; }
@@ -195,10 +192,9 @@
             width: 0;
             height: 1px;
             background: var(--accent);
-            transition: width 0.3s ease;
+            transition: width 0.3s;
         }
         .general-link a:hover::after { width: 100%; }
-        .general-link a:hover { color: #fff; }
         .general-link i { margin-right: 8px; }
 
         .general-stats { display: flex; justify-content: center; gap: 32px; }
@@ -304,7 +300,7 @@
         .visitor-line.vl-dim::before { content: '  '; }
         .visitor-line.vl-accent { color: var(--accent); font-size: 13px; }
         .visitor-line.vl-accent::before { content: '→ '; color: var(--muted); }
-        .visitor-line.vl-section { color: var(--muted); font-size: 11px; letter-spacing: 1px; padding-left: 0; border-left: 2px solid var(--accent); padding-left: 10px; margin-top: 2px; }
+        .visitor-line.vl-section { color: var(--muted); font-size: 11px; letter-spacing: 1px; border-left: 2px solid var(--accent); padding-left: 10px; margin-top: 2px; }
         .visitor-separator { height: 0; margin: 12px 0; opacity: 0; transition: opacity 0.4s; }
         .visitor-separator.visible { opacity: 1; }
         .visitor-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -313,6 +309,55 @@
         .visitor-outro.visible { opacity: 1; }
         .visitor-battery { color: var(--accent); font-size: 11px; opacity: 0; transition: opacity 0.4s; white-space: nowrap; }
         .visitor-battery.visible { opacity: 1; }
+
+        #defuse { max-width: 700px; }
+        .defuse-game { width: 100%; }
+        .defuse-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .defuse-timer { font-size: 32px; font-weight: bold; color: var(--accent); font-variant-numeric: tabular-nums; }
+        .defuse-timer.danger { color: #ff4444; animation: pulse 0.5s infinite; }
+        .defuse-score { color: var(--muted); font-size: 13px; letter-spacing: 1px; }
+        .defuse-prompt { border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; margin-bottom: 16px; min-height: 80px; display: flex; align-items: center; font-size: 15px; letter-spacing: 0.5px; }
+        .defuse-prompt .char { color: var(--dim); }
+        .defuse-prompt .char.correct { color: var(--accent); }
+        .defuse-prompt .char.wrong { color: #ff4444; text-decoration: underline; }
+        .defuse-prompt .char.cursor { border-left: 2px solid var(--accent); animation: blink 1s step-end infinite; }
+        .defuse-instructions { color: var(--dim); font-size: 13px; }
+        .defuse-instructions kbd { background: var(--panel); border: 1px solid var(--border); padding: 1px 5px; border-radius: 3px; font-size: 11px; font-family: inherit; color: var(--dim); }
+        .defuse-input-wrap { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 4px; padding: 10px 14px; margin-bottom: 16px; }
+        .defuse-caret { color: var(--accent); font-weight: bold; }
+        .defuse-input { background: none; border: none; color: var(--fg); font: inherit; font-size: 14px; flex: 1; outline: none; }
+        .defuse-input::placeholder { color: var(--muted); }
+        .defuse-input:disabled { opacity: 0.5; }
+        .defuse-status { display: flex; align-items: center; justify-content: space-between; }
+        .defuse-start { background: none; border: 1px solid var(--accent); color: var(--accent); font-family: inherit; font-size: 12px; padding: 6px 16px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+        .defuse-start:hover { background: var(--accent); color: var(--bg); }
+        .defuse-result { font-size: 13px; color: var(--dim); }
+        .defuse-result.success { color: var(--accent); }
+        .defuse-result.failure { color: #ff4444; }
+        .defuse-explode { animation: shake 0.6s ease-out; }
+        .defuse-flash {
+            position: fixed;
+            inset: 0;
+            background: #ff4444;
+            z-index: 9998;
+            pointer-events: none;
+            animation: flash 0.8s ease-out forwards;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes blink { 50% { border-color: transparent; } }
+        @keyframes shake {
+            0%, 100% { transform: translate(0); }
+            10% { transform: translate(-8px, 4px); }
+            20% { transform: translate(6px, -6px); }
+            30% { transform: translate(-4px, 6px); }
+            40% { transform: translate(8px, -2px); }
+            50% { transform: translate(-6px, -4px); }
+            60% { transform: translate(4px, 6px); }
+            70% { transform: translate(-2px, -8px); }
+            80% { transform: translate(6px, 2px); }
+            90% { transform: translate(-4px, -2px); }
+        }
+        @keyframes flash { 0% { opacity: 0.7; } 100% { opacity: 0; } }
 
         @media (max-width: 600px) {
             body { padding: 4px; }
@@ -351,6 +396,8 @@
             .visitor-intro { font-size: 14px; }
             .visitor-columns { flex-direction: column; gap: 0; }
             .visitor-line.vl-highlight { font-size: 12px; }
+            .defuse-timer { font-size: 22px; }
+            .defuse-prompt { padding: 14px 16px; font-size: 13px; min-height: 60px; }
             .footer { display: none; }
         }
     </style>
@@ -370,6 +417,7 @@
             <div class="nav-item" data-section="skills">Stack</div>
             <div class="nav-item" data-section="certificates">Certificates</div>
             <div class="nav-item" data-section="visitor">You</div>
+            <div class="nav-item" data-section="defuse">Defuse</div>
         </div>
 
         <div class="content">
@@ -527,6 +575,25 @@
                 <div class="visitor-bottom">
                     <div class="visitor-outro" id="visitor-outro"></div>
                     <div class="visitor-battery" id="visitor-battery"></div>
+                </div>
+            </div>
+
+            <div class="section" id="defuse">
+                <div class="defuse-game">
+                    <div class="defuse-header">
+                        <div class="defuse-timer" id="defuse-timer">30.0</div>
+                        <div class="defuse-score" id="defuse-score">SCORE: 0</div>
+                    </div>
+                    <div class="defuse-prompt" id="defuse-prompt">
+                        <div class="defuse-instructions">Type the code snippets to defuse the bomb.<br>Press <kbd>Enter</kbd> or click Start to begin.</div>
+                    </div>
+                    <div class="defuse-input-wrap">
+                        <span class="defuse-caret">$</span>
+                        <input type="text" class="defuse-input" id="defuse-input" autocomplete="off" spellcheck="false" disabled placeholder="waiting..." aria-label="Type code to defuse"/>
+                    </div>
+                    <div class="defuse-status" id="defuse-status">
+                        <button class="defuse-start" id="defuse-start">Start</button>
+                    </div>
                 </div>
             </div>
         </div>

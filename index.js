@@ -63,6 +63,7 @@ function initApp() {
     const sections = document.querySelectorAll('.section');
     let activeIndex = 0;
     let tabSwitches = 0;
+    let defuseActive = false;
 
     function activate(index) {
         tabSwitches++;
@@ -84,6 +85,7 @@ function initApp() {
         if (next.id === 'skills') animateSkillBars();
         if (next.id === 'experience') animateJobs();
         if (next.id === 'visitor') populateVisitor();
+        if (next.id === 'defuse') initDefuse();
     }
 
     navItems.forEach((item, i) => {
@@ -317,6 +319,8 @@ function initApp() {
             konamiIndex = 0;
         }
 
+        if (defuseActive) return;
+
         if (e.key === 'ArrowRight' || e.key === 'Tab') {
             e.preventDefault();
             activate((activeIndex + 1) % navItems.length);
@@ -349,7 +353,6 @@ function initApp() {
     let moves = 0;
     const statsEl = document.getElementById('activity-stats');
 
-
     document.addEventListener('click', () => clicks++);
     document.addEventListener('mousemove', () => moves++);
 
@@ -360,11 +363,142 @@ function initApp() {
         const time = m > 0 ? `${m}m ${s}s` : `${s}s`;
         statsEl.textContent = `You've been here ${time}, switched ${tabSwitches} tabs, clicked ${clicks} times, moved ${moves.toLocaleString()} pixels`;
     }
-    function statsLoop() {
-        updateStats();
-        requestAnimationFrame(statsLoop);
+    setInterval(updateStats, 1000);
+    updateStats();
+
+    const snippets = [
+        'git push origin main',
+        'docker build -t app .',
+        'mvn clean install -DskipTests',
+        'kubectl apply -f deploy.yaml',
+        'ssh root@10.0.0.1',
+        'curl -X POST /api/defuse',
+        'sudo systemctl stop bomb.service',
+        'rm -rf /tmp/payload',
+        'openssl enc -aes-256-cbc -d',
+        'grep -r "detonate" /var/log',
+        'iptables -A INPUT -j DROP',
+        'chmod 000 /opt/trigger.sh',
+        'kill -9 $(pgrep detonator)',
+        'echo "ABORT" > /dev/null',
+        'tar -xzf backup.tar.gz',
+        'nc -lvp 4444 < /dev/null',
+        'aws s3 rm s3://bucket/bomb',
+        'java -jar defuser.jar --now',
+        'npm run disarm --force',
+        'SELECT * FROM bombs WHERE active=1;',
+    ];
+
+    let defuseTimer = null;
+    let defuseTime = 0;
+    let defuseScore = 0;
+    let currentSnippet = '';
+    let usedSnippets = [];
+
+    const defuseTimerEl = document.getElementById('defuse-timer');
+    const defuseScoreEl = document.getElementById('defuse-score');
+    const defusePrompt = document.getElementById('defuse-prompt');
+    const defuseInput = document.getElementById('defuse-input');
+    const defuseStatus = document.getElementById('defuse-status');
+    const defuseStartBtn = document.getElementById('defuse-start');
+
+    function initDefuse() {
+        defuseInput.focus();
     }
-    statsLoop();
+
+    function startDefuse() {
+        defuseActive = true;
+        defuseScore = 0;
+        defuseTime = 30.0;
+        usedSnippets = [];
+        defuseScoreEl.textContent = 'SCORE: 0';
+        defuseTimerEl.classList.remove('danger');
+        defuseInput.disabled = false;
+        defuseInput.value = '';
+        defuseInput.focus();
+        defuseStatus.innerHTML = '<span class="defuse-result">Defusing...</span>';
+        nextSnippet();
+        defuseTimer = setInterval(tickDefuse, 100);
+    }
+
+    function tickDefuse() {
+        defuseTime -= 0.1;
+        if (defuseTime <= 0) {
+            defuseTime = 0;
+            endDefuse(false);
+        }
+        defuseTimerEl.textContent = defuseTime.toFixed(1);
+        if (defuseTime <= 5) defuseTimerEl.classList.add('danger');
+    }
+
+    function nextSnippet() {
+        if (usedSnippets.length >= snippets.length) usedSnippets = [];
+        let s;
+        do { s = snippets[Math.floor(Math.random() * snippets.length)]; } while (usedSnippets.includes(s));
+        usedSnippets.push(s);
+        currentSnippet = s;
+        renderPrompt();
+    }
+
+    function renderPrompt() {
+        const typed = defuseInput.value;
+        let html = '';
+        for (let i = 0; i < currentSnippet.length; i++) {
+            let cls = '';
+            if (i < typed.length) {
+                cls = typed[i] === currentSnippet[i] ? 'correct' : 'wrong';
+            }
+            if (i === typed.length) cls += ' cursor';
+            html += `<span class="char ${cls}">${currentSnippet[i] === ' ' ? '&nbsp;' : escapeHtml(currentSnippet[i])}</span>`;
+        }
+        defusePrompt.innerHTML = html;
+    }
+
+    function escapeHtml(c) {
+        if (c === '<') return '&lt;';
+        if (c === '>') return '&gt;';
+        if (c === '&') return '&amp;';
+        if (c === '"') return '&quot;';
+        return c;
+    }
+
+    function endDefuse(won) {
+        defuseActive = false;
+        clearInterval(defuseTimer);
+        defuseInput.disabled = true;
+        defuseTimerEl.classList.remove('danger');
+        if (won) {
+            defuseStatus.innerHTML = `<span class="defuse-result success">DEFUSED! Final score: ${defuseScore}</span><button class="defuse-start" id="defuse-restart">Again</button>`;
+        } else {
+            const flash = document.createElement('div');
+            flash.className = 'defuse-flash';
+            document.body.appendChild(flash);
+            flash.addEventListener('animationend', () => flash.remove());
+            const frame = document.querySelector('.frame');
+            frame.classList.add('defuse-explode');
+            frame.addEventListener('animationend', () => frame.classList.remove('defuse-explode'), { once: true });
+            defuseStatus.innerHTML = `<span class="defuse-result failure">💥 BOOM! Score: ${defuseScore}</span><button class="defuse-start" id="defuse-restart">Retry</button>`;
+            defusePrompt.innerHTML = '<span style="color:#ff4444;font-size:24px;">💥 DETONATED 💥</span>';
+        }
+        document.getElementById('defuse-restart').addEventListener('click', startDefuse);
+    }
+
+    defuseInput.addEventListener('input', () => {
+        if (!defuseActive) return;
+        renderPrompt();
+        if (defuseInput.value === currentSnippet) {
+            defuseScore++;
+            defuseTime = Math.min(defuseTime + 3, 30);
+            defuseScoreEl.textContent = `SCORE: ${defuseScore}`;
+            defuseInput.value = '';
+            nextSnippet();
+        }
+    });
+
+    defuseStartBtn.addEventListener('click', startDefuse);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !defuseActive && sections[activeIndex].id === 'defuse') startDefuse();
+    });
 }
 
 function typeText(el, text, speed) {
