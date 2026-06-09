@@ -81,6 +81,7 @@ function initApp() {
 
         if (next.id === 'skills') animateSkillBars();
         if (next.id === 'experience') animateJobs();
+        if (next.id === 'visitor') populateVisitor();
     }
 
     navItems.forEach((item, i) => {
@@ -104,6 +105,63 @@ function initApp() {
         jobs.forEach((job, i) => {
             setTimeout(() => job.classList.add('visible'), i * 150);
         });
+    }
+
+    let visitorPopulated = false;
+    function populateVisitor() {
+        if (visitorPopulated) return;
+        visitorPopulated = true;
+        const grid = document.getElementById('visitor-info');
+        const data = [];
+
+        const ua = navigator.userAgent;
+        let browser = 'Unknown';
+        if (ua.includes('Firefox')) browser = 'Firefox';
+        else if (ua.includes('Edg')) browser = 'Edge';
+        else if (ua.includes('Chrome')) browser = 'Chrome';
+        else if (ua.includes('Safari')) browser = 'Safari';
+        data.push(['Browser', browser]);
+
+        let os = 'Unknown';
+        if (ua.includes('Windows')) os = 'Windows';
+        else if (ua.includes('Mac OS')) os = 'macOS';
+        else if (ua.includes('Linux')) os = 'Linux';
+        else if (ua.includes('Android')) os = 'Android';
+        else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+        data.push(['Operating System', os]);
+
+        data.push(['Screen Resolution', `${screen.width} × ${screen.height}`]);
+        data.push(['Viewport', `${window.innerWidth} × ${window.innerHeight}`]);
+        data.push(['Color Depth', `${screen.colorDepth}-bit`]);
+        data.push(['Device Pixel Ratio', `${devicePixelRatio}x`]);
+        data.push(['Language', navigator.language]);
+        data.push(['Timezone', Intl.DateTimeFormat().resolvedOptions().timeZone]);
+        data.push(['Local Time', new Date().toLocaleString()]);
+        data.push(['CPU Cores', navigator.hardwareConcurrency || '?']);
+        data.push(['RAM', navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Hidden']);
+        data.push(['Online', navigator.onLine ? 'Yes' : 'No']);
+        data.push(['Touch Device', navigator.maxTouchPoints > 0 ? 'Yes' : 'No']);
+        data.push(['Connection', navigator.connection ? navigator.connection.effectiveType.toUpperCase() : 'Unknown']);
+        data.push(['Platform', navigator.platform]);
+        data.push(['Cookies Enabled', navigator.cookieEnabled ? 'Yes' : 'No']);
+
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i >= data.length) { clearInterval(interval); return; }
+            const [label, value] = data[i];
+            const row = document.createElement('div');
+            row.className = 'visitor-row';
+            row.innerHTML = `<div class="visitor-label">${label}</div><div class="visitor-value">${value}</div>`;
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(10px)';
+            grid.appendChild(row);
+            requestAnimationFrame(() => {
+                row.style.transition = 'opacity 0.3s, transform 0.3s';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            });
+            i++;
+        }, 80);
     }
 
     const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];

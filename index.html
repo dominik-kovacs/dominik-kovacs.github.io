@@ -291,6 +291,16 @@
 
         .general-greeting { color: var(--dim); font-size: 12px; margin-bottom: 6px; }
 
+        .visitor-header { color: var(--accent); font-size: 14px; margin-bottom: 20px; }
+        .visitor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .visitor-row {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px 16px;
+        }
+        .visitor-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .visitor-value { color: #fff; font-size: 13px; word-break: break-word; }
+
         @media (max-width: 600px) {
             body { padding: 4px; }
             .frame::before { display: none; }
@@ -325,6 +335,9 @@
             .tool-item { padding: 8px 10px; font-size: 11px; }
             .tool-item i { font-size: 14px; }
             .toolbox-label { font-size: 10px; margin-bottom: 10px; }
+            .visitor-grid { grid-template-columns: 1fr; }
+            .visitor-row { padding: 8px 12px; }
+            .visitor-value { font-size: 11px; }
             .footer { display: none; }
         }
     </style>
@@ -343,6 +356,7 @@
             <div class="nav-item" data-section="experience">Experience</div>
             <div class="nav-item" data-section="skills">Skills</div>
             <div class="nav-item" data-section="certificates">Certificates</div>
+            <div class="nav-item" data-section="visitor">You</div>
         </div>
 
         <div class="content">
@@ -491,6 +505,10 @@
                 </div>
             </div>
 
+            <div class="section" id="visitor">
+                <div class="visitor-header">$ whoami</div>
+                <div class="visitor-grid" id="visitor-info"></div>
+            </div>
         </div>
 
         <div class="footer">
