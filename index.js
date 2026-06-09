@@ -142,7 +142,13 @@ function initApp() {
         const arrived = new Date().toLocaleTimeString();
         const fonts = detectFonts();
 
-        const langs = [...new Set((navigator.languages || [navigator.language]).map(l => new Intl.DisplayNames(['en'], { type: 'language' }).of(l.split('-')[0])))].join(" and ");
+        let langs;
+        try {
+            langs = [...new Set((navigator.languages || [navigator.language]).map(l => {
+                try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(l.split('-')[0]); }
+                catch (e) { return l; }
+            }))].join(" and ");
+        } catch (e) { langs = navigator.language; }
 
         const left = [
             { text: "CONNECTION", style: 'section' },
